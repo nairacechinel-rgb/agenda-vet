@@ -14,7 +14,6 @@
     --amarelo-claro: #fef3c7;
     --cinza: #6b7280;
     --fundo: #f9fafb;
-    --branco: #ffffff;
     --borda: #e5e7eb;
     --texto: #111827;
     --sombra: 0 1px 3px rgba(0,0,0,0.1);
@@ -30,13 +29,9 @@
   header p { font-size: 0.85rem; opacity: 0.85; margin-top: 0.2rem; }
 
   .sync-bar {
-    background: #1e293b; color: #94a3b8;
+    background: #1e293b; color: #4ade80;
     text-align: center; font-size: 0.75rem; padding: 0.4rem;
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
   }
-  .sync-bar.ok { color: #4ade80; }
-  .sync-bar.erro { color: #f87171; }
-  .sync-bar.carregando { color: #facc15; }
 
   .modo-foco-btn {
     display: block; margin: 0.8rem auto; padding: 0.4rem 1.2rem;
@@ -71,7 +66,6 @@
     border-radius: 8px; font-size: 0.9rem; outline: none; transition: border 0.2s;
   }
   input:focus, select:focus, textarea:focus { border-color: var(--roxo); }
-  textarea { resize: vertical; min-height: 60px; }
 
   .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: opacity 0.2s; }
   .btn:hover { opacity: 0.85; }
@@ -94,10 +88,7 @@
   td { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--borda); }
   tr:last-child td { border-bottom: none; }
 
-  .tag {
-    display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
-    font-size: 0.72rem; font-weight: 600;
-  }
+  .tag { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
   .tag-estudo { background: var(--roxo-claro); color: var(--roxo); }
   .tag-lazer { background: var(--verde-claro); color: var(--verde); }
   .tag-rotina { background: var(--amarelo-claro); color: var(--amarelo); }
@@ -118,10 +109,7 @@
   .checklist-item label { margin: 0; font-size: 0.9rem; }
   .checklist-item.feito label { text-decoration: line-through; color: var(--cinza); }
 
-  .prova-card {
-    border: 1.5px solid var(--borda); border-radius: 10px;
-    padding: 0.8rem; margin-bottom: 0.6rem;
-  }
+  .prova-card { border: 1.5px solid var(--borda); border-radius: 10px; padding: 0.8rem; margin-bottom: 0.6rem; }
   .prova-card h4 { font-size: 0.95rem; color: var(--roxo); }
   .prova-card p { font-size: 0.82rem; color: var(--cinza); margin-top: 0.2rem; }
   .prova-dif { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
@@ -139,7 +127,6 @@
   .metodo-card li { margin-bottom: 0.3rem; }
 
   .aviso { font-size: 0.8rem; color: var(--cinza); font-style: italic; margin-top: 0.4rem; }
-
   footer { text-align: center; padding: 1.5rem; font-size: 0.78rem; color: var(--cinza); }
 
   @media (max-width: 480px) {
@@ -155,12 +142,9 @@
   <p>Rotina inteligente · Medicina Veterinária 7ª fase · Turma 2707NA · Foco TDAH</p>
 </header>
 
-<!-- BARRA DE SINCRONIZAÇÃO -->
-<div class="sync-bar carregando" id="syncBar">
-  ⟳ Conectando com a nuvem...
-</div>
+<div class="sync-bar">✓ Dados salvos neste dispositivo</div>
 
-<button class="modo-foco-btn" id="btnModoFoco" onclick="toggleModoFoco()">Modo foco TDAH</button>
+<button class="modo-foco-btn" onclick="toggleModoFoco()">Modo foco TDAH</button>
 
 <nav>
   <button class="ativo" onclick="mudarSecao('rotina', this)">🗓 Rotina</button>
@@ -169,13 +153,13 @@
   <button onclick="mudarSecao('metodos', this)">💡 Métodos</button>
 </nav>
 
-<!-- ===================== ROTINA ===================== -->
+<!-- ROTINA -->
 <section class="secao ativa" id="secao-rotina">
 
   <div class="card">
     <h3>🗓 Rotina do dia</h3>
     <label>Selecione o dia</label>
-    <div class="dias-selector" id="diasSelector">
+    <div class="dias-selector">
       <button onclick="selecionarDia('Seg',this)" class="sel">Seg</button>
       <button onclick="selecionarDia('Ter',this)">Ter</button>
       <button onclick="selecionarDia('Qua',this)">Qua</button>
@@ -184,13 +168,10 @@
       <button onclick="selecionarDia('Sáb',this)">Sáb</button>
       <button onclick="selecionarDia('Dom',this)">Dom</button>
     </div>
-
     <label>Horário para acordar</label>
     <input type="time" id="horaAcordar" value="06:00" />
     <p class="aviso">Seg/Qua/Sex têm tênis às 08:00.</p>
-
-    <div id="resumoDia" style="margin-top:0.8rem;font-size:0.85rem;color:var(--cinza);">Resumo</div>
-
+    <div id="resumoDia" style="margin-top:0.8rem;font-size:0.85rem;color:var(--cinza)">Nenhuma atividade.</div>
     <div class="btn-row">
       <button class="btn btn-roxo" onclick="aplicarRotina()">✔ Aplicar horário</button>
       <button class="btn btn-cinza" onclick="resetarDia()">↺ Resetar dia</button>
@@ -206,26 +187,30 @@
     <input type="time" id="novoFim" />
     <label>Nome</label>
     <input type="text" id="novoNome" placeholder="Ex: Anatomia – revisão" />
+    <label>Tipo</label>
+    <select id="novoTipo">
+      <option value="estudo">Estudo</option>
+      <option value="rotina">Rotina</option>
+      <option value="lazer">Lazer</option>
+    </select>
     <label>Observação (opcional)</label>
     <input type="text" id="novoObs" placeholder="Ex: Cap 4" />
     <div class="btn-row">
       <button class="btn btn-roxo" onclick="adicionarAtividade()">+ Adicionar</button>
     </div>
-    <p class="aviso">Se o horário já tiver algo, a nova atividade <strong>substitui</strong> o que estava ali.</p>
+    <p class="aviso">Se o horário já tiver algo, a nova atividade substitui o que estava ali.</p>
   </div>
 
   <div class="card" style="overflow-x:auto">
-    <table id="tabelaRotina">
+    <table>
       <thead>
-        <tr>
-          <th>Hora</th><th>Atividade</th><th>Tipo</th><th>Foco</th><th>Ação</th>
-        </tr>
+        <tr><th>Hora</th><th>Atividade</th><th>Tipo</th><th>Foco</th><th>Ação</th></tr>
       </thead>
       <tbody id="corpoRotina">
-        <tr><td colspan="5" style="text-align:center;color:var(--cinza)">Selecione um dia e aplique a rotina.</td></tr>
+        <tr><td colspan="5" style="text-align:center;color:var(--cinza)">Selecione um dia e clique em "Aplicar horário".</td></tr>
       </tbody>
     </table>
-    <p class="aviso" style="margin-top:0.5rem">🟣 Estudo dividido por prova · 🟢 Lazer em Sáb/Dom</p>
+    <p class="aviso" style="margin-top:0.5rem">🟣 Estudo · 🟢 Lazer · ⚪ Rotina</p>
   </div>
 
   <div class="card">
@@ -234,7 +219,9 @@
       <button class="btn btn-roxo btn-pequeno" onclick="marcarTodos(true)">Marcar tudo</button>
       <button class="btn btn-cinza btn-pequeno" onclick="marcarTodos(false)">Desmarcar tudo</button>
     </div>
-    <div id="checklistContainer"></div>
+    <div id="checklistContainer">
+      <p style="color:var(--cinza);font-size:0.85rem">Aplique uma rotina para ver o checklist.</p>
+    </div>
   </div>
 
   <div class="card">
@@ -243,7 +230,7 @@
     <div class="pomodoro-status" id="pomodoroStatus">Foco 🟣</div>
     <div class="pomodoro-btns">
       <button class="btn btn-verde" onclick="iniciarPomodoro()">▶ Iniciar</button>
-      <button class="btn btn-amarelo" onclick="pausarPomodoro()" style="background:var(--amarelo)">⏸ Pausar</button>
+      <button class="btn btn-cinza" onclick="pausarPomodoro()">⏸ Pausar</button>
       <button class="btn btn-cinza" onclick="reiniciarPomodoro()">↺ Reiniciar</button>
     </div>
     <div style="margin-top:0.8rem;font-size:0.85rem">
@@ -251,23 +238,16 @@
       ☕ Pausas: <strong id="contPausas">0</strong>
     </div>
     <div style="display:flex;gap:0.7rem;margin-top:0.7rem;flex-wrap:wrap">
-      <div style="flex:1">
-        <label>Foco (min)</label>
-        <input type="number" id="minFoco" value="25" min="1" max="60" onchange="reiniciarPomodoro()" />
-      </div>
-      <div style="flex:1">
-        <label>Pausa (min)</label>
-        <input type="number" id="minPausa" value="5" min="1" max="30" onchange="reiniciarPomodoro()" />
-      </div>
+      <div style="flex:1"><label>Foco (min)</label><input type="number" id="minFoco" value="25" min="1" max="60" onchange="reiniciarPomodoro()" /></div>
+      <div style="flex:1"><label>Pausa (min)</label><input type="number" id="minPausa" value="5" min="1" max="30" onchange="reiniciarPomodoro()" /></div>
     </div>
     <p class="aviso" style="margin-top:0.5rem">Após 4 blocos → pausa de 15–20 min.</p>
   </div>
 
 </section>
 
-<!-- ===================== PROVAS ===================== -->
+<!-- PROVAS -->
 <section class="secao" id="secao-provas">
-
   <div class="card">
     <h3>📝 Cadastrar prova</h3>
     <label>Nome da prova</label>
@@ -278,7 +258,7 @@
     <input type="number" id="prTopicos" min="1" value="1" />
     <label>Dias antes (para começar a estudar)</label>
     <input type="number" id="prDias" min="1" value="7" />
-    <label>Conteúdos (vírgulas)</label>
+    <label>Conteúdos (separados por vírgula)</label>
     <input type="text" id="prConteudos" placeholder="Ex: Ossos, Músculos, Articulações" />
     <label>Dificuldade</label>
     <select id="prDif">
@@ -297,66 +277,38 @@
       <button class="btn btn-roxo" onclick="adicionarProva()">+ Adicionar prova</button>
     </div>
   </div>
-
   <div class="card">
     <h3>📋 Provas cadastradas</h3>
-    <div id="listaProvas">
-      <p style="color:var(--cinza);font-size:0.85rem">Nenhuma prova cadastrada ainda.</p>
-    </div>
+    <div id="listaProvas"><p style="color:var(--cinza);font-size:0.85rem">Nenhuma prova cadastrada ainda.</p></div>
   </div>
-
 </section>
 
-<!-- ===================== ESTUDO ===================== -->
+<!-- ESTUDO -->
 <section class="secao" id="secao-estudo">
   <div class="card">
     <h3>📚 Plano de estudo automático</h3>
-    <div id="planoEstudo">
-      <p style="color:var(--cinza);font-size:0.85rem">Cadastre pelo menos uma prova.</p>
-    </div>
+    <div id="planoEstudo"><p style="color:var(--cinza);font-size:0.85rem">Cadastre pelo menos uma prova.</p></div>
   </div>
 </section>
 
-<!-- ===================== MÉTODOS ===================== -->
+<!-- MÉTODOS -->
 <section class="secao" id="secao-metodos">
-
   <div class="metodo-card" style="background:var(--roxo-claro)">
     <h4>🍅 Pomodoro <span style="font-size:0.75rem;color:var(--cinza)">25 min foco · 5 min pausa</span></h4>
-    <ol>
-      <li>Um tópico por bloco.</li>
-      <li>25 min de foco real.</li>
-      <li>5 min de pausa com movimento.</li>
-      <li>Após 4 blocos, 15–20 min de descanso.</li>
-    </ol>
+    <ol><li>Um tópico por bloco.</li><li>25 min de foco real.</li><li>5 min de pausa com movimento.</li><li>Após 4 blocos, 15–20 min de descanso.</li></ol>
   </div>
-
   <div class="metodo-card" style="background:var(--verde-claro)">
     <h4>🃏 Flashcards <span style="font-size:0.75rem;color:var(--cinza)">Ótimo para Anatomia/Clínica</span></h4>
-    <ol>
-      <li>Pergunta de um lado, resposta do outro.</li>
-      <li>Responda em voz alta.</li>
-      <li>Revise os que você mais erra.</li>
-    </ol>
+    <ol><li>Pergunta de um lado, resposta do outro.</li><li>Responda em voz alta.</li><li>Revise os que você mais erra.</li></ol>
   </div>
-
   <div class="metodo-card" style="background:var(--amarelo-claro)">
     <h4>🧠 Mapas mentais <span style="font-size:0.75rem;color:var(--cinza)">Temas grandes</span></h4>
-    <ol>
-      <li>Centro: tema principal.</li>
-      <li>Ramos: subtemas.</li>
-      <li>Use cores e desenhos simples.</li>
-    </ol>
+    <ol><li>Centro: tema principal.</li><li>Ramos: subtemas.</li><li>Use cores e desenhos simples.</li></ol>
   </div>
-
   <div class="metodo-card" style="background:#fce7f3">
     <h4>🗣 Ensinar em voz alta <span style="font-size:0.75rem;color:var(--cinza)">Fixação profunda</span></h4>
-    <ol>
-      <li>Explique como se fosse dar aula.</li>
-      <li>Grave áudio e ouça depois.</li>
-      <li>Onde travar = ponto fraco.</li>
-    </ol>
+    <ol><li>Explique como se fosse dar aula.</li><li>Grave áudio e ouça depois.</li><li>Onde travar = ponto fraco.</li></ol>
   </div>
-
   <div class="card">
     <h4 style="color:var(--roxo);margin-bottom:0.5rem">🐾 Dicas para TDAH</h4>
     <ul style="font-size:0.85rem;padding-left:1.2rem">
@@ -364,513 +316,330 @@
       <li>Defina só <strong>uma tarefa</strong> por bloco.</li>
       <li>Celular longe nos 25 min de foco.</li>
       <li>Reconheça cada bloco concluído.</li>
-      <li>Sábado e domingo: use os horários livres para lazer de verdade.</li>
+      <li>Sábado e domingo: lazer de verdade.</li>
     </ul>
   </div>
-
 </section>
 
 <footer>Agenda Vet · Naira · 7ª fase · Turma 2707NA</footer>
 
 <script>
-// ============================================================
-//  CONFIGURAÇÃO — cole sua URL do Apps Script aqui
-// ============================================================
-const WEBAPP_URL = "https://script.google.com/u/1/home/projects/1ygQ5nwWYe_rbMcpX52AORwIiKzPDDokYqrsIIF3jePrBizN2KjMNFP1G/edit";
+// ── PERSISTÊNCIA LOCAL ──────────────────────────────────────
+function carregar(k){ try{ return JSON.parse(localStorage.getItem(k))||[]; }catch{ return []; } }
+function salvar(k,v){ localStorage.setItem(k,JSON.stringify(v)); }
 
-// ============================================================
-//  UTILITÁRIOS DE API
-// ============================================================
-async function apiGet(aba) {
-  try {
-    const r = await fetch(`${WEBAPP_URL}?aba=${aba}`);
-    return await r.json();
-  } catch (e) {
-    console.error("GET erro:", e);
-    return [];
-  }
-}
+// ── ESTADO ──────────────────────────────────────────────────
+let diaSel       = "Seg";
+let rotinaDados  = carregar("rotina");
+let provasDados  = carregar("provas");
+let checkDados   = carregar("checklist");
+let pomTimer=null, pomAtivo=false, pomFase="foco", pomSeg=25*60, pomBlocos=0, pomPausas=0;
 
-async function apiPost(aba, acao, dados) {
-  try {
-    const r = await fetch(WEBAPP_URL, {
-      method: "POST",
-      body: JSON.stringify({ aba, acao, dados }),
-      headers: { "Content-Type": "text/plain" }
-    });
-    return await r.json();
-  } catch (e) {
-    console.error("POST erro:", e);
-    return { erro: e.toString() };
-  }
-}
-
-function setSyncBar(estado, msg) {
-  const bar = document.getElementById("syncBar");
-  bar.className = "sync-bar " + estado;
-  bar.textContent = msg;
-}
-
-// ============================================================
-//  ESTADO LOCAL
-// ============================================================
-let diaSelecionado = "Seg";
-let rotinaDados = [];       // { dia, inicio, fim, nome, tipo, observacao }
-let provasDados = [];       // { id, nome, data, topicos, diasAntes, conteudos, dificuldade, metodo }
-let checklistDados = [];    // { dia, texto, feito }
-let pomodoroStats = { blocos: 0, pausas: 0 };
-let pomTimer = null;
-let pomAtivo = false;
-let pomFase = "foco";
-let pomSegundos = 25 * 60;
-
-// ============================================================
-//  INICIALIZAÇÃO
-// ============================================================
-async function inicializar() {
-  setSyncBar("carregando", "⟳ Carregando dados da nuvem...");
-  try {
-    const [r, p, c] = await Promise.all([
-      apiGet("rotina"),
-      apiGet("provas"),
-      apiGet("checklist")
-    ]);
-    rotinaDados = Array.isArray(r) ? r : [];
-    provasDados = Array.isArray(p) ? p : [];
-    checklistDados = Array.isArray(c) ? c : [];
-    setSyncBar("ok", "✓ Sincronizado com a nuvem");
-    renderRotinaDia();
-    renderChecklist();
-    renderProvas();
-    renderPlano();
-  } catch (e) {
-    setSyncBar("erro", "✗ Erro ao conectar — verifique a URL do script");
-  }
-}
-
-// ============================================================
-//  NAVEGAÇÃO
-// ============================================================
-function mudarSecao(id, btn) {
-  document.querySelectorAll(".secao").forEach(s => s.classList.remove("ativa"));
-  document.querySelectorAll("nav button").forEach(b => b.classList.remove("ativo"));
-  document.getElementById("secao-" + id).classList.add("ativa");
-  btn.classList.add("ativo");
-}
-
-function toggleModoFoco() {
-  document.body.style.filter =
-    document.body.style.filter === "grayscale(0.6)" ? "" : "grayscale(0.6)";
-}
-
-// ============================================================
-//  ROTINA
-// ============================================================
-const ROTINA_PADRAO = {
-  "Seg": [
-    { inicio:"06:00", fim:"07:00", nome:"Acordar + manhã", tipo:"rotina" },
-    { inicio:"07:00", fim:"08:00", nome:"Deslocamento", tipo:"rotina" },
-    { inicio:"08:00", fim:"09:00", nome:"Tênis 🎾", tipo:"lazer" },
-    { inicio:"09:00", fim:"12:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"12:00", fim:"13:00", nome:"Almoço", tipo:"rotina" },
-    { inicio:"13:00", fim:"17:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"17:00", fim:"19:00", nome:"Estudo – Prova 1", tipo:"estudo" },
-    { inicio:"19:00", fim:"20:00", nome:"Jantar / descanso", tipo:"rotina" },
-    { inicio:"20:00", fim:"22:00", nome:"Estudo – Prova 2", tipo:"estudo" },
+// ── ROTINA PADRÃO ───────────────────────────────────────────
+const PAD = {
+  Seg:[
+    {i:"06:00",f:"07:00",n:"Acordar + manhã",t:"rotina"},
+    {i:"07:00",f:"08:00",n:"Deslocamento",t:"rotina"},
+    {i:"08:00",f:"09:00",n:"Tênis 🎾",t:"lazer"},
+    {i:"09:00",f:"12:00",n:"Aula",t:"rotina"},
+    {i:"12:00",f:"13:00",n:"Almoço",t:"rotina"},
+    {i:"13:00",f:"17:00",n:"Aula",t:"rotina"},
+    {i:"17:00",f:"19:00",n:"Estudo – Prova 1",t:"estudo"},
+    {i:"19:00",f:"20:00",n:"Jantar / descanso",t:"rotina"},
+    {i:"20:00",f:"22:00",n:"Estudo – Prova 2",t:"estudo"},
   ],
-  "Ter": [
-    { inicio:"06:00", fim:"07:30", nome:"Acordar + manhã", tipo:"rotina" },
-    { inicio:"07:30", fim:"08:30", nome:"Deslocamento", tipo:"rotina" },
-    { inicio:"08:30", fim:"12:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"12:00", fim:"13:00", nome:"Almoço", tipo:"rotina" },
-    { inicio:"13:00", fim:"17:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"17:00", fim:"19:30", nome:"Estudo – Prova 1", tipo:"estudo" },
-    { inicio:"19:30", fim:"22:00", nome:"Estudo – Prova 2", tipo:"estudo" },
+  Ter:[
+    {i:"06:00",f:"07:30",n:"Acordar + manhã",t:"rotina"},
+    {i:"07:30",f:"08:30",n:"Deslocamento",t:"rotina"},
+    {i:"08:30",f:"12:00",n:"Aula",t:"rotina"},
+    {i:"12:00",f:"13:00",n:"Almoço",t:"rotina"},
+    {i:"13:00",f:"17:00",n:"Aula",t:"rotina"},
+    {i:"17:00",f:"19:30",n:"Estudo – Prova 1",t:"estudo"},
+    {i:"19:30",f:"22:00",n:"Estudo – Prova 2",t:"estudo"},
   ],
-  "Qua": [
-    { inicio:"06:00", fim:"07:00", nome:"Acordar + manhã", tipo:"rotina" },
-    { inicio:"07:00", fim:"08:00", nome:"Deslocamento", tipo:"rotina" },
-    { inicio:"08:00", fim:"09:00", nome:"Tênis 🎾", tipo:"lazer" },
-    { inicio:"09:00", fim:"12:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"12:00", fim:"13:00", nome:"Almoço", tipo:"rotina" },
-    { inicio:"13:00", fim:"17:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"17:00", fim:"19:30", nome:"Estudo – Prova 1", tipo:"estudo" },
-    { inicio:"19:30", fim:"22:00", nome:"Estudo livre", tipo:"estudo" },
+  Qua:[
+    {i:"06:00",f:"07:00",n:"Acordar + manhã",t:"rotina"},
+    {i:"07:00",f:"08:00",n:"Deslocamento",t:"rotina"},
+    {i:"08:00",f:"09:00",n:"Tênis 🎾",t:"lazer"},
+    {i:"09:00",f:"12:00",n:"Aula",t:"rotina"},
+    {i:"12:00",f:"13:00",n:"Almoço",t:"rotina"},
+    {i:"13:00",f:"17:00",n:"Aula",t:"rotina"},
+    {i:"17:00",f:"19:30",n:"Estudo – Prova 1",t:"estudo"},
+    {i:"19:30",f:"22:00",n:"Estudo livre",t:"estudo"},
   ],
-  "Qui": [
-    { inicio:"06:30", fim:"07:30", nome:"Acordar + manhã", tipo:"rotina" },
-    { inicio:"07:30", fim:"08:30", nome:"Deslocamento", tipo:"rotina" },
-    { inicio:"08:30", fim:"12:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"12:00", fim:"13:00", nome:"Almoço", tipo:"rotina" },
-    { inicio:"13:00", fim:"17:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"17:00", fim:"20:00", nome:"Estudo – Prova 2", tipo:"estudo" },
-    { inicio:"20:00", fim:"22:00", nome:"Revisão geral", tipo:"estudo" },
+  Qui:[
+    {i:"06:30",f:"07:30",n:"Acordar + manhã",t:"rotina"},
+    {i:"07:30",f:"08:30",n:"Deslocamento",t:"rotina"},
+    {i:"08:30",f:"12:00",n:"Aula",t:"rotina"},
+    {i:"12:00",f:"13:00",n:"Almoço",t:"rotina"},
+    {i:"13:00",f:"17:00",n:"Aula",t:"rotina"},
+    {i:"17:00",f:"20:00",n:"Estudo – Prova 2",t:"estudo"},
+    {i:"20:00",f:"22:00",n:"Revisão geral",t:"estudo"},
   ],
-  "Sex": [
-    { inicio:"06:00", fim:"07:00", nome:"Acordar + manhã", tipo:"rotina" },
-    { inicio:"07:00", fim:"08:00", nome:"Deslocamento", tipo:"rotina" },
-    { inicio:"08:00", fim:"09:00", nome:"Tênis 🎾", tipo:"lazer" },
-    { inicio:"09:00", fim:"12:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"12:00", fim:"13:00", nome:"Almoço", tipo:"rotina" },
-    { inicio:"13:00", fim:"17:00", nome:"Aula", tipo:"rotina" },
-    { inicio:"17:00", fim:"19:00", nome:"Estudo leve", tipo:"estudo" },
-    { inicio:"19:00", fim:"22:00", nome:"Lazer / descanso 🎉", tipo:"lazer" },
+  Sex:[
+    {i:"06:00",f:"07:00",n:"Acordar + manhã",t:"rotina"},
+    {i:"07:00",f:"08:00",n:"Deslocamento",t:"rotina"},
+    {i:"08:00",f:"09:00",n:"Tênis 🎾",t:"lazer"},
+    {i:"09:00",f:"12:00",n:"Aula",t:"rotina"},
+    {i:"12:00",f:"13:00",n:"Almoço",t:"rotina"},
+    {i:"13:00",f:"17:00",n:"Aula",t:"rotina"},
+    {i:"17:00",f:"19:00",n:"Estudo leve",t:"estudo"},
+    {i:"19:00",f:"22:00",n:"Lazer / descanso 🎉",t:"lazer"},
   ],
-  "Sáb": [
-    { inicio:"08:00", fim:"10:00", nome:"Revisão semanal", tipo:"estudo" },
-    { inicio:"10:00", fim:"12:00", nome:"Estudo – prioridade", tipo:"estudo" },
-    { inicio:"12:00", fim:"14:00", nome:"Almoço / descanso", tipo:"rotina" },
-    { inicio:"14:00", fim:"18:00", nome:"Lazer 🎉", tipo:"lazer" },
-    { inicio:"18:00", fim:"22:00", nome:"Lazer / social 🎉", tipo:"lazer" },
+  "Sáb":[
+    {i:"08:00",f:"10:00",n:"Revisão semanal",t:"estudo"},
+    {i:"10:00",f:"12:00",n:"Estudo – prioridade",t:"estudo"},
+    {i:"12:00",f:"14:00",n:"Almoço / descanso",t:"rotina"},
+    {i:"14:00",f:"18:00",n:"Lazer 🎉",t:"lazer"},
+    {i:"18:00",f:"22:00",n:"Lazer / social 🎉",t:"lazer"},
   ],
-  "Dom": [
-    { inicio:"09:00", fim:"11:00", nome:"Lazer matinal 🎉", tipo:"lazer" },
-    { inicio:"11:00", fim:"13:00", nome:"Revisão leve", tipo:"estudo" },
-    { inicio:"13:00", fim:"14:00", nome:"Almoço", tipo:"rotina" },
-    { inicio:"14:00", fim:"22:00", nome:"Descanso / lazer 🎉", tipo:"lazer" },
+  Dom:[
+    {i:"09:00",f:"11:00",n:"Lazer matinal 🎉",t:"lazer"},
+    {i:"11:00",f:"13:00",n:"Revisão leve",t:"estudo"},
+    {i:"13:00",f:"14:00",n:"Almoço",t:"rotina"},
+    {i:"14:00",f:"22:00",n:"Descanso / lazer 🎉",t:"lazer"},
   ],
 };
 
-function selecionarDia(dia, btn) {
-  diaSelecionado = dia;
-  document.querySelectorAll(".dias-selector button").forEach(b => b.classList.remove("sel"));
+// ── NAVEGAÇÃO ───────────────────────────────────────────────
+function mudarSecao(id,btn){
+  document.querySelectorAll(".secao").forEach(s=>s.classList.remove("ativa"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("ativo"));
+  document.getElementById("secao-"+id).classList.add("ativa");
+  btn.classList.add("ativo");
+}
+function toggleModoFoco(){
+  document.body.style.filter=document.body.style.filter==="grayscale(0.6)"?"":"grayscale(0.6)";
+}
+
+// ── ROTINA ──────────────────────────────────────────────────
+function selecionarDia(dia,btn){
+  diaSel=dia;
+  document.querySelectorAll(".dias-selector button").forEach(b=>b.classList.remove("sel"));
   btn.classList.add("sel");
-  renderRotinaDia();
+  renderRotina();
   renderChecklist();
 }
 
-async function aplicarRotina() {
-  const hora = document.getElementById("horaAcordar").value;
-  const padrao = ROTINA_PADRAO[diaSelecionado] || [];
-
-  // Ajusta horário de acordar na primeira atividade
-  const atividades = padrao.map((a, i) => ({
-    ...a,
-    inicio: i === 0 ? hora : a.inicio,
-    observacao: ""
+function aplicarRotina(){
+  const hora=document.getElementById("horaAcordar").value;
+  const pad=(PAD[diaSel]||[]).map((a,i)=>({
+    dia:diaSel, inicio:i===0?hora:a.i, fim:a.f, nome:a.n, tipo:a.t, obs:""
   }));
-
-  // Remove as do dia e reinsere
-  setSyncBar("carregando", "⟳ Salvando rotina...");
-  const res = await apiPost("rotina", "substituir", {
-    coluna: "dia",
-    valor: diaSelecionado,
-    novosDados: atividades.map(a => ({ ...a, dia: diaSelecionado }))
-  });
-
-  if (res.ok) {
-    rotinaDados = rotinaDados.filter(r => r.dia !== diaSelecionado);
-    atividades.forEach(a => rotinaDados.push({ ...a, dia: diaSelecionado }));
-    setSyncBar("ok", "✓ Rotina salva na nuvem");
-    renderRotinaDia();
-    renderChecklist();
-  } else {
-    setSyncBar("erro", "✗ Erro ao salvar: " + (res.erro || ""));
-  }
-}
-
-async function adicionarAtividade() {
-  const inicio = document.getElementById("novoInicio").value;
-  const fim = document.getElementById("novoFim").value;
-  const nome = document.getElementById("novoNome").value.trim();
-  const obs = document.getElementById("novoObs").value.trim();
-  if (!inicio || !nome) { alert("Informe pelo menos horário de início e nome."); return; }
-
-  const nova = { dia: diaSelecionado, inicio, fim, nome, tipo: "estudo", observacao: obs };
-  // Remove atividade que começa no mesmo horário
-  const filtradas = rotinaDados.filter(r => !(r.dia === diaSelecionado && r.inicio === inicio));
-  filtradas.push(nova);
-
-  setSyncBar("carregando", "⟳ Salvando atividade...");
-  const res = await apiPost("rotina", "substituir", {
-    coluna: "dia",
-    valor: diaSelecionado,
-    novosDados: filtradas.filter(r => r.dia === diaSelecionado)
-  });
-
-  if (res.ok) {
-    rotinaDados = filtradas;
-    setSyncBar("ok", "✓ Atividade salva na nuvem");
-    renderRotinaDia();
-    document.getElementById("novoNome").value = "";
-    document.getElementById("novoObs").value = "";
-  } else {
-    setSyncBar("erro", "✗ Erro: " + (res.erro || ""));
-  }
-}
-
-async function removerAtividade(dia, inicio) {
-  rotinaDados = rotinaDados.filter(r => !(r.dia === dia && r.inicio === inicio));
-  setSyncBar("carregando", "⟳ Removendo...");
-  const res = await apiPost("rotina", "substituir", {
-    coluna: "dia",
-    valor: dia,
-    novosDados: rotinaDados.filter(r => r.dia === dia)
-  });
-  if (res.ok) {
-    setSyncBar("ok", "✓ Removido");
-    renderRotinaDia();
-  } else {
-    setSyncBar("erro", "✗ Erro ao remover");
-  }
-}
-
-async function resetarDia() {
-  if (!confirm(`Resetar o dia ${diaSelecionado}?`)) return;
-  rotinaDados = rotinaDados.filter(r => r.dia !== diaSelecionado);
-  setSyncBar("carregando", "⟳ Resetando...");
-  await apiPost("rotina", "substituir", { coluna: "dia", valor: diaSelecionado, novosDados: [] });
-  setSyncBar("ok", "✓ Dia resetado");
-  renderRotinaDia();
+  rotinaDados=rotinaDados.filter(r=>r.dia!==diaSel);
+  pad.forEach(a=>rotinaDados.push(a));
+  salvar("rotina",rotinaDados);
+  renderRotina();
   renderChecklist();
 }
 
-async function limparTudo() {
-  if (!confirm("Apagar TUDO da rotina?")) return;
-  setSyncBar("carregando", "⟳ Limpando...");
-  await apiPost("rotina", "limpar", {});
-  rotinaDados = [];
-  setSyncBar("ok", "✓ Tudo limpo");
-  renderRotinaDia();
+function adicionarAtividade(){
+  const inicio=document.getElementById("novoInicio").value;
+  const fim=document.getElementById("novoFim").value;
+  const nome=document.getElementById("novoNome").value.trim();
+  const tipo=document.getElementById("novoTipo").value;
+  const obs=document.getElementById("novoObs").value.trim();
+  if(!inicio||!nome){alert("Informe horário de início e nome.");return;}
+  rotinaDados=rotinaDados.filter(r=>!(r.dia===diaSel&&r.inicio===inicio));
+  rotinaDados.push({dia:diaSel,inicio,fim,nome,tipo,obs});
+  salvar("rotina",rotinaDados);
+  renderRotina();
+  document.getElementById("novoNome").value="";
+  document.getElementById("novoObs").value="";
+}
+
+function removerAtividade(dia,inicio){
+  rotinaDados=rotinaDados.filter(r=>!(r.dia===dia&&r.inicio===inicio));
+  salvar("rotina",rotinaDados);
+  renderRotina();
   renderChecklist();
 }
 
-function renderRotinaDia() {
-  const ativs = rotinaDados
-    .filter(r => r.dia === diaSelecionado)
-    .sort((a, b) => a.inicio.localeCompare(b.inicio));
+function resetarDia(){
+  if(!confirm("Resetar "+diaSel+"?"))return;
+  rotinaDados=rotinaDados.filter(r=>r.dia!==diaSel);
+  salvar("rotina",rotinaDados);
+  renderRotina();
+  renderChecklist();
+}
 
-  const corpo = document.getElementById("corpoRotina");
-  const resumo = document.getElementById("resumoDia");
+function limparTudo(){
+  if(!confirm("Apagar TODA a rotina de todos os dias?"))return;
+  rotinaDados=[];
+  salvar("rotina",rotinaDados);
+  renderRotina();
+  renderChecklist();
+}
 
-  if (!ativs.length) {
-    corpo.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--cinza)">Nenhuma atividade para ${diaSelecionado}. Clique em "Aplicar horário".</td></tr>`;
-    resumo.textContent = "Nenhuma atividade.";
+function renderRotina(){
+  const ativs=rotinaDados.filter(r=>r.dia===diaSel).sort((a,b)=>a.inicio.localeCompare(b.inicio));
+  const corpo=document.getElementById("corpoRotina");
+  const resumo=document.getElementById("resumoDia");
+  if(!ativs.length){
+    corpo.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--cinza)">Nenhuma atividade. Clique em "Aplicar horário".</td></tr>`;
+    resumo.textContent="Nenhuma atividade.";
     return;
   }
-
-  corpo.innerHTML = ativs.map(a => `
+  corpo.innerHTML=ativs.map(a=>`
     <tr>
-      <td>${a.inicio}${a.fim ? "–" + a.fim : ""}</td>
-      <td><strong>${a.nome}</strong>${a.observacao ? "<br><small style='color:var(--cinza)'>" + a.observacao + "</small>" : ""}</td>
-      <td><span class="tag tag-${a.tipo || "rotina"}">${a.tipo || "rotina"}</span></td>
-      <td>${a.tipo === "estudo" ? "🟣" : a.tipo === "lazer" ? "🟢" : "⚪"}</td>
+      <td>${a.inicio}${a.fim?"–"+a.fim:""}</td>
+      <td><strong>${a.nome}</strong>${a.obs?`<br><small style="color:var(--cinza)">${a.obs}</small>`:""}</td>
+      <td><span class="tag tag-${a.tipo||"rotina"}">${a.tipo||"rotina"}</span></td>
+      <td>${a.tipo==="estudo"?"🟣":a.tipo==="lazer"?"🟢":"⚪"}</td>
       <td><button class="btn btn-vermelho btn-pequeno" onclick="removerAtividade('${a.dia}','${a.inicio}')">✕</button></td>
     </tr>
   `).join("");
-
-  const estudo = ativs.filter(a => a.tipo === "estudo").length;
-  const lazer = ativs.filter(a => a.tipo === "lazer").length;
-  resumo.textContent = `${ativs.length} atividade(s) · ${estudo} estudo · ${lazer} lazer`;
+  const est=ativs.filter(a=>a.tipo==="estudo").length;
+  const laz=ativs.filter(a=>a.tipo==="lazer").length;
+  resumo.textContent=`${ativs.length} atividade(s) · ${est} estudo · ${laz} lazer`;
 }
 
-// ============================================================
-//  CHECKLIST
-// ============================================================
-async function renderChecklist() {
-  const itens = rotinaDados
-    .filter(r => r.dia === diaSelecionado && r.tipo === "estudo")
-    .sort((a, b) => a.inicio.localeCompare(b.inicio));
-
-  const container = document.getElementById("checklistContainer");
-
-  if (!itens.length) {
-    container.innerHTML = `<p style="color:var(--cinza);font-size:0.85rem">Aplique uma rotina para ver o checklist.</p>`;
-    return;
-  }
-
-  container.innerHTML = itens.map(item => {
-    const reg = checklistDados.find(c => c.dia === diaSelecionado && c.texto === item.nome);
-    const feito = reg && String(reg.feito) === "true";
+// ── CHECKLIST ────────────────────────────────────────────────
+function renderChecklist(){
+  const itens=rotinaDados.filter(r=>r.dia===diaSel&&r.tipo==="estudo").sort((a,b)=>a.inicio.localeCompare(b.inicio));
+  const cont=document.getElementById("checklistContainer");
+  if(!itens.length){cont.innerHTML=`<p style="color:var(--cinza);font-size:0.85rem">Aplique uma rotina para ver o checklist.</p>`;return;}
+  cont.innerHTML=itens.map(item=>{
+    const reg=checkDados.find(c=>c.dia===diaSel&&c.texto===item.nome);
+    const feito=reg&&reg.feito===true;
     return `
-      <div class="checklist-item${feito ? " feito" : ""}" id="ci-${item.inicio}">
-        <input type="checkbox" ${feito ? "checked" : ""} onchange="toggleCheck('${item.nome}', this.checked)" />
+      <div class="checklist-item${feito?" feito":""}">
+        <input type="checkbox" ${feito?"checked":""} onchange="toggleCheck('${item.nome}',this.checked)" />
         <label>${item.inicio} – ${item.nome}</label>
-      </div>
-    `;
+      </div>`;
   }).join("");
 }
 
-async function toggleCheck(texto, feito) {
-  // Atualiza local
-  const idx = checklistDados.findIndex(c => c.dia === diaSelecionado && c.texto === texto);
-  if (idx >= 0) {
-    checklistDados[idx].feito = feito;
-  } else {
-    checklistDados.push({ dia: diaSelecionado, texto, feito });
-  }
-
-  // Salva substituindo o dia inteiro no checklist
-  const dodia = checklistDados.filter(c => c.dia === diaSelecionado);
-  await apiPost("checklist", "substituir", {
-    coluna: "dia",
-    valor: diaSelecionado,
-    novosDados: dodia
-  });
-
+function toggleCheck(texto,feito){
+  const idx=checkDados.findIndex(c=>c.dia===diaSel&&c.texto===texto);
+  if(idx>=0)checkDados[idx].feito=feito;
+  else checkDados.push({dia:diaSel,texto,feito});
+  salvar("checklist",checkDados);
   renderChecklist();
 }
 
-function marcarTodos(val) {
-  const itens = rotinaDados.filter(r => r.dia === diaSelecionado && r.tipo === "estudo");
-  itens.forEach(item => {
-    const idx = checklistDados.findIndex(c => c.dia === diaSelecionado && c.texto === item.nome);
-    if (idx >= 0) checklistDados[idx].feito = val;
-    else checklistDados.push({ dia: diaSelecionado, texto: item.nome, feito: val });
+function marcarTodos(val){
+  rotinaDados.filter(r=>r.dia===diaSel&&r.tipo==="estudo").forEach(item=>{
+    const idx=checkDados.findIndex(c=>c.dia===diaSel&&c.texto===item.nome);
+    if(idx>=0)checkDados[idx].feito=val;
+    else checkDados.push({dia:diaSel,texto:item.nome,feito:val});
   });
-  const dodia = checklistDados.filter(c => c.dia === diaSelecionado);
-  apiPost("checklist", "substituir", { coluna: "dia", valor: diaSelecionado, novosDados: dodia });
+  salvar("checklist",checkDados);
   renderChecklist();
 }
 
-// ============================================================
-//  POMODORO
-// ============================================================
-function atualizarDisplay() {
-  const m = Math.floor(pomSegundos / 60).toString().padStart(2, "0");
-  const s = (pomSegundos % 60).toString().padStart(2, "0");
-  document.getElementById("pomodoroDisplay").textContent = `${m}:${s}`;
+// ── POMODORO ────────────────────────────────────────────────
+function atualizarDisplay(){
+  const m=Math.floor(pomSeg/60).toString().padStart(2,"0");
+  const s=(pomSeg%60).toString().padStart(2,"0");
+  document.getElementById("pomodoroDisplay").textContent=m+":"+s;
 }
-
-function iniciarPomodoro() {
-  if (pomAtivo) return;
-  pomAtivo = true;
-  pomTimer = setInterval(() => {
-    pomSegundos--;
+function iniciarPomodoro(){
+  if(pomAtivo)return;
+  pomAtivo=true;
+  pomTimer=setInterval(()=>{
+    pomSeg--;
     atualizarDisplay();
-    if (pomSegundos <= 0) {
-      clearInterval(pomTimer);
-      pomAtivo = false;
-      if (pomFase === "foco") {
-        pomodoroStats.blocos++;
-        document.getElementById("contBlocos").textContent = pomodoroStats.blocos;
-        pomFase = "pausa";
-        pomSegundos = parseInt(document.getElementById("minPausa").value) * 60;
-        document.getElementById("pomodoroStatus").textContent = "Pausa ☕";
+    if(pomSeg<=0){
+      clearInterval(pomTimer);pomAtivo=false;
+      if(pomFase==="foco"){
+        pomBlocos++;
+        document.getElementById("contBlocos").textContent=pomBlocos;
+        pomFase="pausa";
+        pomSeg=parseInt(document.getElementById("minPausa").value)*60;
+        document.getElementById("pomodoroStatus").textContent="Pausa ☕";
         alert("✅ Bloco concluído! Hora de pausar.");
       } else {
-        pomodoroStats.pausas++;
-        document.getElementById("contPausas").textContent = pomodoroStats.pausas;
-        pomFase = "foco";
-        pomSegundos = parseInt(document.getElementById("minFoco").value) * 60;
-        document.getElementById("pomodoroStatus").textContent = "Foco 🟣";
+        pomPausas++;
+        document.getElementById("contPausas").textContent=pomPausas;
+        pomFase="foco";
+        pomSeg=parseInt(document.getElementById("minFoco").value)*60;
+        document.getElementById("pomodoroStatus").textContent="Foco 🟣";
         alert("☕ Pausa acabou! Hora de focar.");
       }
       atualizarDisplay();
     }
-  }, 1000);
+  },1000);
 }
-
-function pausarPomodoro() { clearInterval(pomTimer); pomAtivo = false; }
-
-function reiniciarPomodoro() {
-  clearInterval(pomTimer); pomAtivo = false;
-  pomFase = "foco";
-  pomSegundos = parseInt(document.getElementById("minFoco").value) * 60;
-  document.getElementById("pomodoroStatus").textContent = "Foco 🟣";
+function pausarPomodoro(){clearInterval(pomTimer);pomAtivo=false;}
+function reiniciarPomodoro(){
+  clearInterval(pomTimer);pomAtivo=false;pomFase="foco";
+  pomSeg=parseInt(document.getElementById("minFoco").value)*60;
+  document.getElementById("pomodoroStatus").textContent="Foco 🟣";
   atualizarDisplay();
 }
 
-// ============================================================
-//  PROVAS
-// ============================================================
-async function adicionarProva() {
-  const nome = document.getElementById("prNome").value.trim();
-  const data = document.getElementById("prData").value;
-  if (!nome || !data) { alert("Nome e data são obrigatórios."); return; }
-
-  const prova = {
-    id: Date.now().toString(),
-    nome,
-    data,
-    topicos: document.getElementById("prTopicos").value,
-    diasAntes: document.getElementById("prDias").value,
-    conteudos: document.getElementById("prConteudos").value,
-    dificuldade: document.getElementById("prDif").value,
-    metodo: document.getElementById("prMetodo").value
-  };
-
-  setSyncBar("carregando", "⟳ Salvando prova...");
-  const res = await apiPost("provas", "salvar", prova);
-  if (res.ok) {
-    provasDados.push(prova);
-    setSyncBar("ok", "✓ Prova salva na nuvem");
-    renderProvas();
-    renderPlano();
-    document.getElementById("prNome").value = "";
-  } else {
-    setSyncBar("erro", "✗ Erro ao salvar prova");
-  }
+// ── PROVAS ──────────────────────────────────────────────────
+function adicionarProva(){
+  const nome=document.getElementById("prNome").value.trim();
+  const data=document.getElementById("prData").value;
+  if(!nome||!data){alert("Nome e data são obrigatórios.");return;}
+  provasDados.push({
+    id:Date.now().toString(),nome,data,
+    topicos:document.getElementById("prTopicos").value,
+    diasAntes:document.getElementById("prDias").value,
+    conteudos:document.getElementById("prConteudos").value,
+    dificuldade:document.getElementById("prDif").value,
+    metodo:document.getElementById("prMetodo").value
+  });
+  salvar("provas",provasDados);
+  renderProvas();renderPlano();
+  document.getElementById("prNome").value="";
 }
 
-async function deletarProva(id) {
-  if (!confirm("Remover esta prova?")) return;
-  setSyncBar("carregando", "⟳ Removendo...");
-  const res = await apiPost("provas", "deletar", { coluna: "id", valor: id });
-  if (res.ok) {
-    provasDados = provasDados.filter(p => p.id !== id);
-    setSyncBar("ok", "✓ Removida");
-    renderProvas();
-    renderPlano();
-  }
+function deletarProva(id){
+  if(!confirm("Remover esta prova?"))return;
+  provasDados=provasDados.filter(p=>p.id!==id);
+  salvar("provas",provasDados);
+  renderProvas();renderPlano();
 }
 
-function renderProvas() {
-  const lista = document.getElementById("listaProvas");
-  if (!provasDados.length) {
-    lista.innerHTML = `<p style="color:var(--cinza);font-size:0.85rem">Nenhuma prova cadastrada ainda.</p>`;
-    return;
-  }
-
-  const hoje = new Date();
-  lista.innerHTML = provasDados.map(p => {
-    const dataProva = new Date(p.data + "T12:00:00");
-    const diff = Math.ceil((dataProva - hoje) / (1000 * 60 * 60 * 24));
-    const difClass = p.dificuldade === "alta" ? "dif-alta" : p.dificuldade === "media" ? "dif-media" : "dif-baixa";
+function renderProvas(){
+  const lista=document.getElementById("listaProvas");
+  if(!provasDados.length){lista.innerHTML=`<p style="color:var(--cinza);font-size:0.85rem">Nenhuma prova cadastrada ainda.</p>`;return;}
+  const hoje=new Date();
+  lista.innerHTML=provasDados.map(p=>{
+    const dp=new Date(p.data+"T12:00:00");
+    const diff=Math.ceil((dp-hoje)/(1000*60*60*24));
+    const dc=p.dificuldade==="alta"?"dif-alta":p.dificuldade==="media"?"dif-media":"dif-baixa";
     return `
       <div class="prova-card">
         <div style="display:flex;justify-content:space-between;align-items:start">
           <h4>${p.nome}</h4>
           <button class="btn btn-vermelho btn-pequeno" onclick="deletarProva('${p.id}')">✕</button>
         </div>
-        <p>📅 ${new Date(p.data + "T12:00:00").toLocaleDateString("pt-BR")} · ${diff > 0 ? diff + " dias" : diff === 0 ? "Hoje!" : "Passou"}</p>
-        <p>📋 ${p.topicos} tópico(s) · ${p.conteudos || "—"}</p>
-        <p>🎯 ${p.metodo} &nbsp; <span class="prova-dif ${difClass}">${p.dificuldade}</span></p>
-      </div>
-    `;
+        <p>📅 ${dp.toLocaleDateString("pt-BR")} · ${diff>0?diff+" dias":diff===0?"Hoje!":"Passou"}</p>
+        <p>📋 ${p.topicos} tópico(s) · ${p.conteudos||"—"}</p>
+        <p>🎯 ${p.metodo} &nbsp;<span class="prova-dif ${dc}">${p.dificuldade}</span></p>
+      </div>`;
   }).join("");
 }
 
-function renderPlano() {
-  const plano = document.getElementById("planoEstudo");
-  if (!provasDados.length) {
-    plano.innerHTML = `<p style="color:var(--cinza);font-size:0.85rem">Cadastre pelo menos uma prova.</p>`;
-    return;
-  }
-
-  const hoje = new Date();
-  plano.innerHTML = provasDados.map(p => {
-    const dataProva = new Date(p.data + "T12:00:00");
-    const diff = Math.ceil((dataProva - hoje) / (1000 * 60 * 60 * 24));
-    const inicio = Math.max(0, diff - parseInt(p.diasAntes));
-    const conteudos = p.conteudos ? p.conteudos.split(",").map(c => c.trim()) : [];
-    const porDia = Math.ceil(conteudos.length / Math.max(1, parseInt(p.diasAntes)));
-
+function renderPlano(){
+  const plano=document.getElementById("planoEstudo");
+  if(!provasDados.length){plano.innerHTML=`<p style="color:var(--cinza);font-size:0.85rem">Cadastre pelo menos uma prova.</p>`;return;}
+  const hoje=new Date();
+  plano.innerHTML=provasDados.map(p=>{
+    const dp=new Date(p.data+"T12:00:00");
+    const diff=Math.ceil((dp-hoje)/(1000*60*60*24));
+    const conts=p.conteudos?p.conteudos.split(",").map(c=>c.trim()):[];
+    const porDia=Math.ceil(conts.length/Math.max(1,parseInt(p.diasAntes)));
     return `
       <div class="plano-dia">
-        <h4>${p.nome} — ${diff > 0 ? "em " + diff + " dias" : diff === 0 ? "Hoje!" : "Passou"}</h4>
-        <div class="plano-item">🗓 Comece a estudar em ${inicio} dia(s) · ${p.diasAntes} dias de estudo · ~${porDia} conteúdo(s)/dia</div>
+        <h4>${p.nome} — ${diff>0?"em "+diff+" dias":diff===0?"Hoje!":"Passou"}</h4>
+        <div class="plano-item">🗓 ${p.diasAntes} dias de estudo · ~${porDia} conteúdo(s)/dia</div>
         <div class="plano-item">🎯 Método: ${p.metodo} · Dificuldade: ${p.dificuldade}</div>
-        ${conteudos.map((c, i) => `<div class="plano-item">📌 Dia ${i + 1}: ${c}</div>`).join("")}
-      </div>
-    `;
+        ${conts.map((c,i)=>`<div class="plano-item">📌 Dia ${i+1}: ${c}</div>`).join("")}
+      </div>`;
   }).join("");
 }
 
-// ============================================================
-//  INICIAR
-// ============================================================
-inicializar();
+// ── INICIAR ─────────────────────────────────────────────────
+renderRotina();
+renderChecklist();
+renderProvas();
+renderPlano();
+atualizarDisplay();
 </script>
 </body>
 </html>
