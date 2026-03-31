@@ -550,9 +550,6 @@ function renderWeekView() {
 function renderTasksView() {
   sectionTasks.innerHTML = "<p style='color:#94a3b8'>Lista completa de tarefas será implementada na próxima parte.</p>";
 }
-function renderTdahView() {
-  sectionTdah.innerHTML = "<p style='color:#94a3b8'>Sugestões de métodos de estudo para TDAH virão na próxima parte.</p>";
-}
 function renderSettingsView() {
   sectionSettings.innerHTML = "<p style='color:#94a3b8'>Configurações (incluindo Google Sheets) serão implementadas em breve.</p>";
 }
