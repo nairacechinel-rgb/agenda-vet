@@ -572,6 +572,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // data atual na topbar
   const now = new Date();
   currentDateLabel.textContent = formatDateBR(now);
+  // Gera blocos de estudo ao iniciar (se tiver provas cadastradas)
+generateStudyBlocksForAllExams();
   // render inicial
   setActiveSection("dashboard");
 });
