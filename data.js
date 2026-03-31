@@ -1,144 +1,264 @@
 // ===============================
-// classes.js
-// Geração automática das aulas e visão de horários
+// data.js — Dados base, rotinas e utilitários
 // ===============================
 
-// Cria tarefas de aula para uma data específica, com base em CLASSES_SCHEDULE
-function generateClassTasksForDate(dateStr) {
-  const d = new Date(dateStr);
-  const dayIndex = d.getDay(); // 1=segunda ...
+const DAYS = ["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
 
-  const classesToday = CLASSES_SCHEDULE.filter((c) => c.dayIndex === dayIndex);
+const STORAGE_KEYS = {
+  TASKS:        "naira_tasks",
+  EXAMS:        "naira_exams",
+  STUDY_METHOD: "naira_study_method",
+  DONE_DATES:   "naira_done_dates",
+};
 
-  return classesToday.map((c) => ({
-    id: uuid(),
-    title: c.subject,
-    date: dateStr,
-    start: c.start,
-    end: c.end,
-    category: "class",
-    priority: "medium",
-    notes: c.type === "prática" ? "Aula prática" : "Aula teórica",
-    done: false,
-    source: "auto:class",
+// ─── UTILITÁRIOS DE DATA / HORA ──────────────────────────────
+
+function toDateOnly(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatDateBR(date) {
+  return new Date(date).toLocaleDateString("pt-BR", {
+    weekday: "long", day: "2-digit", month: "2-digit", year: "numeric",
+  });
+}
+
+function timeStrToMinutes(t) {
+  if (!t) return 0;
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function minutesToTimeStr(mins) {
+  const h = String(Math.floor(mins / 60)).padStart(2, "0");
+  const m = String(mins % 60).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+// retorna true se dois intervalos se sobrepõem
+function isTimeOverlap(startA, endA, startB, endB) {
+  if (!endA || !endB) return false;
+  return timeStrToMinutes(startA) < timeStrToMinutes(endB) &&
+         timeStrToMinutes(startB) < timeStrToMinutes(endA);
+}
+
+function uuid() {
+  return "id-" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+}
+
+// quantos dias faltam entre hoje e uma data
+function daysUntil(dateStr) {
+  const now  = toDateOnly(new Date());
+  const then = toDateOnly(new Date(dateStr));
+  return Math.round((then - now) / 86400000);
+}
+
+// ─── LOCAL STORAGE ────────────────────────────────────────────
+
+function loadFromStorage(key, defaultValue) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : defaultValue;
+  } catch (e) { return defaultValue; }
+}
+
+function saveToStorage(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+}
+
+// ─── ARRAYS GLOBAIS ───────────────────────────────────────────
+
+let tasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
+let exams = loadFromStorage(STORAGE_KEYS.EXAMS, []);
+
+// ─── ROTINA DOMÉSTICA DIÁRIA ──────────────────────────────────
+// aparece todos os dias
+
+const DAILY_HOUSE = [
+  { label: "Arrumar a cama",                          start: "07:00", end: "07:10" },
+  { label: "Higiene pessoal / se arrumar",             start: "07:10", end: "07:30" },
+  { label: "Café da manhã",                            start: "07:30", end: "07:50" },
+  { label: "Lavar a louça do café",                    start: "07:50", end: "08:00" },
+  { label: "Organizar escrivaninha / espaço de estudo",start: "13:00", end: "13:10" },
+  { label: "Organizar materiais p/ o dia seguinte",    start: "22:00", end: "22:15" },
+];
+
+// ─── ROTINA DOMÉSTICA SEMANAL ─────────────────────────────────
+// weekday: 0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sáb
+
+const WEEKLY_HOUSE = [
+  // Segunda
+  { weekday:1, label:"Separar e pôr roupas para lavar (máquina)",start:"11:15",end:"11:30" },
+  { weekday:1, label:"Dobrar/guardar roupas limpas da semana passada",start:"21:15",end:"21:35" },
+  // Terça
+  { weekday:2, label:"Limpar banheiro (pia, vaso, piso, espelho)",start:"11:00",end:"11:40" },
+  { weekday:2, label:"Estender / passar roupa da máquina",        start:"11:40",end:"12:00" },
+  // Quarta
+  { weekday:3, label:"Passar pano nos principais cômodos",        start:"17:30",end:"18:00" },
+  // Quinta
+  { weekday:4, label:"Lavar roupas escuras / toalhas",            start:"09:00",end:"09:15" },
+  { weekday:4, label:"Trocar roupa de cama",                      start:"09:15",end:"09:35" },
+  // Sexta
+  { weekday:5, label:"Organização geral rápida da casa (30 min)", start:"17:30",end:"18:00" },
+  // Sábado
+  { weekday:6, label:"Varrer / aspirar toda a casa",              start:"09:00",end:"09:40" },
+  { weekday:6, label:"Limpeza de cozinha (fogão, bancada, geladeira)", start:"09:40",end:"10:10" },
+  // Domingo
+  { weekday:0, label:"Planejamento semanal (revisar agenda da semana)", start:"19:00",end:"19:30" },
+];
+
+// ─── LAZER (sugestões fixas) ──────────────────────────────────
+// leve, para garantir que não some da agenda
+
+const WEEKLY_LEISURE = [
+  { weekday:6, label:"Tempo livre / lazer / descanso", start:"15:00",end:"17:00" },
+  { weekday:0, label:"Tempo livre / lazer / descanso", start:"14:00",end:"16:30" },
+];
+
+// ─── TÊNIS DE MESA ────────────────────────────────────────────
+
+const TENIS_DAYS   = [1, 3, 5]; // seg, qua, sex
+const TENIS_CONFIG = { name:"Tênis de Mesa", start:"08:00", end:"11:00" };
+
+// ─── HORÁRIO DE AULAS (PDF CONFIRMADO) ───────────────────────
+// dayIndex: 1=seg, 2=ter, 3=qua, 4=qui, 5=sex
+
+const CLASSES_SCHEDULE = [
+
+  // ── SEGUNDA ──────────────────────────────────────────────────
+  { dayIndex:1, start:"15:20", end:"16:00", subject:"Anatomia Patológica Vet II",   type:"teórica" },
+  { dayIndex:1, start:"16:00", end:"16:40", subject:"Anatomia Patológica Vet II",   type:"teórica" },
+
+  // ── TERÇA ────────────────────────────────────────────────────
+  { dayIndex:2, start:"13:30", end:"14:10", subject:"Clínica de Pequenos Animais",  type:"prática" },
+  { dayIndex:2, start:"14:10", end:"15:20", subject:"Clínica de Pequenos Animais",  type:"prática" },
+  { dayIndex:2, start:"15:20", end:"16:00", subject:"Clínica de Pequenos Animais",  type:"prática" },
+  { dayIndex:2, start:"16:00", end:"16:40", subject:"Clínica de Pequenos Animais",  type:"prática" },
+  { dayIndex:2, start:"18:40", end:"19:20", subject:"Clínica de Pequenos Animais",  type:"teórica" },
+  { dayIndex:2, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais",  type:"teórica" },
+  { dayIndex:2, start:"20:30", end:"21:10", subject:"Diagnóstico por Imagem",       type:"teórica" },
+  { dayIndex:2, start:"21:10", end:"21:50", subject:"Diagnóstico por Imagem",       type:"teórica" },
+
+  // ── QUARTA ───────────────────────────────────────────────────
+  { dayIndex:3, start:"08:30", end:"09:10", subject:"Anestesiologia",               type:"prática" },
+  { dayIndex:3, start:"09:10", end:"10:20", subject:"Anestesiologia",               type:"prática" },
+  { dayIndex:3, start:"10:20", end:"11:00", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:3, start:"11:00", end:"11:40", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:3, start:"18:40", end:"19:20", subject:"Anatomia Patológica Vet II",   type:"teórica" },
+  { dayIndex:3, start:"19:20", end:"20:30", subject:"Anatomia Patológica Vet II",   type:"teórica" },
+  { dayIndex:3, start:"20:30", end:"21:10", subject:"Anestesiologia",               type:"teórica" },
+  { dayIndex:3, start:"21:10", end:"21:50", subject:"Anestesiologia",               type:"teórica" },
+
+  // ── QUINTA ───────────────────────────────────────────────────
+  { dayIndex:4, start:"08:30", end:"09:10", subject:"Anestesiologia",               type:"prática" },
+  { dayIndex:4, start:"09:10", end:"10:20", subject:"Anestesiologia",               type:"prática" },
+  { dayIndex:4, start:"10:20", end:"11:00", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:4, start:"11:00", end:"11:40", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:4, start:"15:20", end:"16:00", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:4, start:"16:00", end:"16:40", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:4, start:"18:40", end:"19:20", subject:"Clínica de Pequenos Animais",  type:"teórica" },
+  { dayIndex:4, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais",  type:"teórica" },
+  { dayIndex:4, start:"20:30", end:"21:10", subject:"Clínica de Pequenos Animais",  type:"teórica" },
+  { dayIndex:4, start:"21:10", end:"21:50", subject:"Clínica de Pequenos Animais",  type:"teórica" },
+
+  // ── SEXTA ─────────────────────────────────────────────────────
+  // Sem aulas fixas no PDF
+];
+
+// ─── BLOCOS DE ESTUDO PADRÃO ──────────────────────────────────
+// São sugeridos automaticamente quando há prova/trabalho próximo.
+// Distribuídos em blocos curtos (25-40 min) conforme TDAH.
+// O algoritmo de exams.js vai preencher "subject" dinamicamente.
+
+const STUDY_SLOTS_BY_DAY = {
+  // Segunda — tarde livre antes da aula 15:20, noite livre
+  1: [
+    { start:"11:15", end:"11:50", label:"Bloco de estudo manhã (Método Pomodoro)" },
+    { start:"13:10", end:"13:50", label:"Bloco de estudo tarde A"                 },
+    { start:"13:50", end:"14:30", label:"Bloco de estudo tarde B"                 },
+    { start:"21:00", end:"21:40", label:"Revisão rápida noite"                    },
+  ],
+  // Terça — aulas da tarde e noite; manhã livre
+  2: [
+    { start:"09:00", end:"09:40", label:"Bloco de estudo manhã A"  },
+    { start:"09:45", end:"10:25", label:"Bloco de estudo manhã B"  },
+    { start:"11:00", end:"11:40", label:"Bloco de estudo manhã C"  },
+  ],
+  // Quarta — prática de manhã, aulas à noite; tarde livre
+  3: [
+    { start:"12:30", end:"13:10", label:"Bloco de estudo tarde A"  },
+    { start:"13:10", end:"13:50", label:"Bloco de estudo tarde B"  },
+    { start:"17:30", end:"18:10", label:"Bloco de estudo tarde C"  },
+  ],
+  // Quinta — prática manhã/tarde, teórica noite; janela entre tarde e noite
+  4: [
+    { start:"12:00", end:"12:40", label:"Bloco de estudo tarde A"  },
+    { start:"13:10", end:"13:50", label:"Bloco de estudo tarde B"  },
+    { start:"16:50", end:"17:30", label:"Bloco de estudo pré-aula" },
+  ],
+  // Sexta — dia mais livre (tênis de manhã); tarde e noite disponíveis
+  5: [
+    { start:"12:00", end:"12:40", label:"Bloco de estudo tarde A"  },
+    { start:"13:00", end:"13:40", label:"Bloco de estudo tarde B"  },
+    { start:"14:00", end:"14:40", label:"Bloco de estudo tarde C"  },
+    { start:"19:00", end:"19:40", label:"Bloco de estudo noite"    },
+  ],
+  // Sábado — mais leve, blocos curtos
+  6: [
+    { start:"11:00", end:"11:40", label:"Bloco de estudo manhã A"  },
+    { start:"13:00", end:"13:40", label:"Bloco de estudo tarde A"  },
+  ],
+  // Domingo — revisão geral, muito curto
+  0: [
+    { start:"10:00", end:"10:40", label:"Revisão semanal leve"     },
+  ],
+};
+
+// ─── GERADORES DE TAREFAS FIXAS ──────────────────────────────
+
+function generateDailyHouseTasks(dateStr) {
+  return DAILY_HOUSE.map(item => ({
+    id: uuid(), title: item.label,
+    date: dateStr, start: item.start, end: item.end,
+    category: "home", priority: "low",
+    notes: "", done: false, source: "auto:house",
   }));
 }
 
-// ------------- VISUALIZAÇÃO DE AULAS NA ABA "AULAS" -------------
+function generateWeeklyHouseTasks(dateStr) {
+  const weekday = new Date(dateStr).getDay();
+  return WEEKLY_HOUSE
+    .filter(i => i.weekday === weekday)
+    .map(item => ({
+      id: uuid(), title: item.label,
+      date: dateStr, start: item.start, end: item.end,
+      category: "home", priority: "medium",
+      notes: "", done: false, source: "auto:house",
+    }));
+}
 
-function renderClassesView() {
-  sectionClasses.innerHTML = "";
+function generateLeisureForDate(dateStr) {
+  const weekday = new Date(dateStr).getDay();
+  return WEEKLY_LEISURE
+    .filter(i => i.weekday === weekday)
+    .map(item => ({
+      id: uuid(), title: item.label,
+      date: dateStr, start: item.start, end: item.end,
+      category: "leisure", priority: "low",
+      notes: "Momento de descanso — não pule!", done: false, source: "auto:leisure",
+    }));
+}
 
-  const header = document.createElement("div");
-  header.className = "section-header";
-  header.innerHTML = `
-    <div>
-      <h1>Agenda de Aulas</h1>
-      <p>Horários fixos da 7ª fase de Medicina Veterinária.</p>
-    </div>
-  `;
-  sectionClasses.appendChild(header);
-
-  const card = document.createElement("div");
-  card.className = "card";
-
-  const title = document.createElement("div");
-  title.className = "card-title";
-  title.textContent = "Semana padrão de aulas";
-  card.appendChild(title);
-
-  // Montar uma grade por dia da semana, com as aulas daquele dia
-  const daysMap = {
-    1: "Segunda-feira",
-    2: "Terça-feira",
-    3: "Quarta-feira",
-    4: "Quinta-feira",
-    5: "Sexta-feira",
-  };
-
-  Object.entries(daysMap).forEach(([idx, label]) => {
-    const dayIndex = Number(idx);
-    const list = CLASSES_SCHEDULE.filter((c) => c.dayIndex === dayIndex)
-      .sort((a, b) => timeStrToMinutes(a.start) - timeStrToMinutes(b.start));
-
-    const dayBlock = document.createElement("div");
-    dayBlock.style.marginBottom = "18px";
-
-    const dayHeader = document.createElement("div");
-    dayHeader.style.display = "flex";
-    dayHeader.style.alignItems = "center";
-    dayHeader.style.justifyContent = "space-between";
-    dayHeader.style.marginBottom = "6px";
-
-    const labelEl = document.createElement("div");
-    labelEl.style.fontWeight = "600";
-    labelEl.style.fontSize = "0.9rem";
-    labelEl.textContent = label;
-
-    const badge = document.createElement("span");
-    badge.className = "badge badge-accent";
-    badge.textContent = list.length ? `${list.length} blocos de aula` : "Sem aulas";
-
-    dayHeader.appendChild(labelEl);
-    dayHeader.appendChild(badge);
-    dayBlock.appendChild(dayHeader);
-
-    if (!list.length) {
-      const p = document.createElement("p");
-      p.style.fontSize = "0.8rem";
-      p.style.color = "#64748b";
-      p.textContent = "Nenhuma aula neste dia.";
-      dayBlock.appendChild(p);
-    } else {
-      list.forEach((c) => {
-        const line = document.createElement("div");
-        line.style.display = "flex";
-        line.style.alignItems = "center";
-        line.style.fontSize = "0.82rem";
-        line.style.marginBottom = "4px";
-
-        const timeSpan = document.createElement("span");
-        timeSpan.style.minWidth = "90px";
-        timeSpan.style.color = "#9ca3af";
-        timeSpan.textContent = `${c.start} - ${c.end}`;
-
-        const subjectSpan = document.createElement("span");
-        subjectSpan.textContent = c.subject;
-
-        const typeSpan = document.createElement("span");
-        typeSpan.className = "badge " + (c.type === "prática" ? "badge-cyan" : "badge-accent");
-        typeSpan.style.marginLeft = "8px";
-        typeSpan.textContent = c.type === "prática" ? "Prática" : "Teórica";
-
-        line.appendChild(timeSpan);
-        line.appendChild(subjectSpan);
-        line.appendChild(typeSpan);
-
-        dayBlock.appendChild(line);
-      });
-    }
-
-    const divider = document.createElement("hr");
-    divider.style.border = "none";
-    divider.style.borderTop = "1px solid #1f2937";
-    divider.style.marginTop = "10px";
-
-    card.appendChild(dayBlock);
-    if (dayIndex !== 5) card.appendChild(divider);
-  });
-
-  sectionClasses.appendChild(card);
-
-  // Pequeno aviso
-  const info = document.createElement("div");
-  info.className = "card";
-  info.innerHTML = `
-    <div class="card-title">Integração com sua rotina</div>
-    <p style="font-size:0.84rem;color:#9ca3af;line-height:1.5">
-      Esses horários são usados automaticamente para montar sua linha do tempo diária.
-      Ou seja, quando você olhar o dia, verá casa, tênis de mesa, aulas e estudos juntos,
-      em uma visão única, para reduzir a sobrecarga de planejamento (o que ajuda muito no TDAH).
-    </p>
-  `;
-  sectionClasses.appendChild(info);
+function generateTenisForDate(dateStr) {
+  const dayIndex = new Date(dateStr).getDay();
+  if (!TENIS_DAYS.includes(dayIndex)) return [];
+  return [{
+    id: uuid(), title: TENIS_CONFIG.name,
+    date: dateStr, start: TENIS_CONFIG.start, end: TENIS_CONFIG.end,
+    category: "sport", priority: "medium",
+    notes: "Treino fixo — segunda, quarta e sexta",
+    done: false, source: "auto:tenis",
+  }];
 }
