@@ -316,6 +316,8 @@ function renderTasksView() {
 
 // ---------- VISÃO SEMANAL (ABA WEEK) -------------------------
 
+// ---------- VISÃO SEMANAL (ABA WEEK) -------------------------
+
 function renderWeekView() {
   sectionWeek.innerHTML = "";
 
@@ -324,71 +326,93 @@ function renderWeekView() {
   header.innerHTML = `
     <div>
       <h1>Semana</h1>
-      <p>Visão geral de segunda a sexta com aulas, casa, estudo, lazer e tênis.</p>
+      <p>Visão de segunda a sexta: casa, aulas, estudos, lazer, tênis de mesa.</p>
     </div>
   `;
   sectionWeek.appendChild(header);
 
-  const start = toDateOnly(currentDateView);
-  // início da semana (segunda)
-  const dayIdx = start.getDay(); // 0=domingo
-  const diffToMonday = (dayIdx + 6) % 7;
-  start.setDate(start.getDate() - diffToMonday);
+  // Começa na segunda-feira da semana da data em visualização
+  const base = toDateOnly(currentDateView);
+  const dayIdx = base.getDay(); // 0=dom,1=seg
+  const diffToMonday = (dayIdx + 6) % 7; // transforma domingo em 6, seg em 0
+  base.setDate(base.getDate() - diffToMonday);
+
+  // Antes de montar, garantimos que os dias da semana tenham tarefas auto-geradas
+  const weekDates = [];
+  for (let i = 0; i < 5; i++) { // segunda a sexta
+    const d = new Date(base);
+    d.setDate(base.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
+    ensureAutoTasksForDate(dateStr);
+    weekDates.push({ date: d, dateStr });
+  }
 
   const card = document.createElement("div");
   card.className = "card";
 
   const title = document.createElement("div");
   title.className = "card-title";
-  title.textContent = "Semana (Segunda a Sexta)";
+  const weekStartLabel = weekDates[0].date.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" });
+  const weekEndLabel   = weekDates[4].date.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" });
+  title.textContent = `Semana ${weekStartLabel} – ${weekEndLabel}`;
   card.appendChild(title);
 
   const grid = document.createElement("div");
   grid.className = "week-grid";
 
+  // cabeçalho das colunas
   const colLabels = ["Hora","Seg","Ter","Qua","Qui","Sex"];
   colLabels.forEach((lab, idx) => {
     const h = document.createElement("div");
     h.className = "week-header";
     h.textContent = lab;
+
     if (idx > 0) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + (idx-1));
-      if (toDateOnly(d).getTime() === toDateOnly(new Date()).getTime()) {
+      const d = weekDates[idx-1].date;
+      const today = toDateOnly(new Date());
+      if (d.getTime() === today.getTime()) {
         h.classList.add("today");
       }
     }
     grid.appendChild(h);
   });
 
-  // vamos usar faixa de 07:00 até 22:00 em intervalos de 60min
-  for (let m = 7*60; m <= 22*60; m += 60) {
-    const timeLabel = document.createElement("div");
-    timeLabel.className = "week-time";
-    timeLabel.textContent = minutesToTimeStr(m);
-    grid.appendChild(timeLabel);
+  // janela de horários (07:00 às 22:00, de hora em hora)
+  const startMinutes = 7 * 60;
+  const endMinutes   = 22 * 60;
 
-    for (let col = 0; col < 5; col++) {
+  for (let m = startMinutes; m <= endMinutes; m += 60) {
+    // coluna de hora
+    const timeCell = document.createElement("div");
+    timeCell.className = "week-time";
+    timeCell.textContent = minutesToTimeStr(m);
+    grid.appendChild(timeCell);
+
+    // colunas de cada dia
+    for (let i = 0; i < 5; i++) {
+      const { dateStr } = weekDates[i];
       const cell = document.createElement("div");
       cell.className = "week-cell";
 
-      const day = new Date(start);
-      day.setDate(start.getDate() + col);
-      const dateStr = day.toISOString().slice(0,10);
-
-      const events = tasks.filter(t =>
+      const slotTasks = tasks.filter(t =>
         t.date === dateStr &&
         t.start &&
         timeStrToMinutes(t.start) >= m &&
-        timeStrToMinutes(t.start) < m + 60
+        timeStrToMinutes(t.start) <  m + 60
       );
 
-      events.forEach(t => {
+      slotTasks.forEach(t => {
         const ev = document.createElement("div");
-        ev.className = "week-event " + ({
-          home:"ev-home", study:"ev-study", sport:"ev-sport",
-          leisure:"ev-leisure", class:"ev-class", exam:"ev-exam"
-        }[t.category] || "ev-study");
+        const cls = {
+          home:    "ev-home",
+          study:   "ev-study",
+          sport:   "ev-sport",
+          leisure: "ev-leisure",
+          class:   "ev-class",
+          exam:    "ev-exam",
+        }[t.category] || "ev-study";
+
+        ev.className = "week-event " + cls;
         ev.textContent = t.title;
         cell.appendChild(ev);
       });
@@ -399,4 +423,17 @@ function renderWeekView() {
 
   card.appendChild(grid);
   sectionWeek.appendChild(card);
+
+  // Dica breve
+  const tip = document.createElement("div");
+  tip.className = "card";
+  tip.innerHTML = `
+    <div class="card-title">Como usar a visão semanal</div>
+    <p style="font-size:.84rem;color:#9ca3af;line-height:1.6">
+      Use esta visão para perceber onde estão os <strong>dias mais carregados</strong> e onde sobram janelas.
+      Se sentir que um dia está muito cheio (especialmente com aula + estudo + casa),
+      considere mover alguns blocos de estudo para a sexta ou fim de semana, que tendem a ser mais flexíveis.
+    </p>
+  `;
+  sectionWeek.appendChild(tip);
 }
