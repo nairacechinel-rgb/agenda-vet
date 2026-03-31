@@ -44,8 +44,16 @@ const inputTaskNotes = document.getElementById("taskNotes");
 const toastEl = document.getElementById("toast");
 
 // sync button (Google Sheets virá na Parte 6)
-const btnSync = document.getElementById("btnSync");
-
+btnSync.addEventListener("click", async () => {
+  try {
+    showToast("Sincronizando com Google Sheets...", "info");
+    await syncWithSheets();
+    showToast("Sincronização concluída com sucesso.", "success");
+  } catch (e) {
+    console.error(e);
+    showToast("Erro ao sincronizar. Verifique a URL do Apps Script.", "error");
+  }
+});
 // estado de modal
 let editingTaskId = null;
 
