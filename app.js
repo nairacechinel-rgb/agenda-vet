@@ -216,28 +216,50 @@ btnTaskSave.addEventListener("click", () => {
 // DASHBOARD (HOJE / DIA SELECIONADO)
 // ===============================
 function ensureAutoTasksForDate(dateStr) {
-  // ROTINA DOMÉSTICA (diária + semanal)
-  const hasHouse = tasks.some((t) => t.date === dateStr && t.source === "auto:house");
+
+  // ── 1. ROTINA DOMÉSTICA (diária + semanal) ──────────────────
+  const hasHouse = tasks.some(t =>
+    t.date === dateStr && t.source === "auto:house"
+  );
   if (!hasHouse) {
-    const daily = generateDailyHouseTasks(dateStr);
+    const daily  = generateDailyHouseTasks(dateStr);
     const weekly = generateWeeklyHouseTasks(dateStr);
     tasks = tasks.concat(daily, weekly);
   }
 
-  // TÊNIS DE MESA
-  const hasTenis = tasks.some((t) => t.date === dateStr && t.source === "auto:tenis");
+  // ── 2. LAZER (fins de semana) ───────────────────────────────
+  const hasLeisure = tasks.some(t =>
+    t.date === dateStr && t.source === "auto:leisure"
+  );
+  if (!hasLeisure) {
+    const leisure = generateLeisureForDate(dateStr);
+    tasks = tasks.concat(leisure);
+  }
+
+  // ── 3. TÊNIS DE MESA ────────────────────────────────────────
+  const hasTenis = tasks.some(t =>
+    t.date === dateStr && t.source === "auto:tenis"
+  );
   if (!hasTenis) {
     const tenis = generateTenisForDate(dateStr);
     tasks = tasks.concat(tenis);
   }
 
-  // AULAS
-  const hasClass = tasks.some((t) => t.date === dateStr && t.source === "auto:class");
+  // ── 4. AULAS ────────────────────────────────────────────────
+  const hasClass = tasks.some(t =>
+    t.date === dateStr && t.source === "auto:class"
+  );
   if (!hasClass && typeof generateClassTasksForDate === "function") {
     const cls = generateClassTasksForDate(dateStr);
     tasks = tasks.concat(cls);
   }
 
+  // ── 5. BLOCOS DE ESTUDO (gerados pelo exams.js) ─────────────
+  // Os blocos de estudo já ficam no array `tasks` com source "auto:study:..."
+  // e são gerados/atualizados sempre que uma prova é salva ou excluída.
+  // Aqui só garantimos que o exams.js já rodou na inicialização.
+
+  // ── SALVA TUDO ───────────────────────────────────────────────
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
 }
 
