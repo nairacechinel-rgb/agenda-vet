@@ -525,9 +525,6 @@ function renderDashboard() {
 function renderWeekView() {
   sectionWeek.innerHTML = "<p style='color:#94a3b8'>Visão semanal será implementada na próxima parte.</p>";
 }
-function renderClassesView() {
-  sectionClasses.innerHTML = "<p style='color:#94a3b8'>Agenda de aulas será implementada na próxima parte.</p>";
-}
 function renderExamsView() {
   sectionExams.innerHTML = "<p style='color:#94a3b8'>Cadastro de provas e trabalhos será implementado na próxima parte.</p>";
 }
