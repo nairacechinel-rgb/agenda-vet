@@ -107,7 +107,7 @@ function setActiveSection(sectionKey) {
     case "week":
       sectionWeek.classList.add("active");
       topbarTitle.textContent = "Semana";
-      renderWeekView();
+      renderWeekView();   // ← precisa ser exatamente isso
       break;
     case "classes":
       sectionClasses.classList.add("active");
