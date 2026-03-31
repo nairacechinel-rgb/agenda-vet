@@ -2,8 +2,7 @@
 // exams.js — Provas, Trabalhos e Plano de Estudos
 // ===============================
 
-// ── MODAL DE PROVA ────────────────────────────────────────────
-
+// Referências de elementos do modal
 const modalExamOverlay = document.getElementById("modalExamOverlay");
 const modalExamClose   = document.getElementById("modalExamClose");
 const btnExamCancel    = document.getElementById("btnExamCancel");
@@ -19,12 +18,11 @@ const topicsContainer  = document.getElementById("examTopicsContainer");
 
 let editingExamId = null;
 
-// ── TOPICS (conteúdos da prova) ────────────────────────────────
+// ------------- TÓPICOS (CONTEÚDOS) ----------------------------
 
-function getTopicInputs() {
-  return Array.from(document.querySelectorAll(".exam-topic-input"))
-    .map(i => i.value.trim())
-    .filter(Boolean);
+function resetTopicsContainer() {
+  topicsContainer.innerHTML = "";
+  addTopicRow();
 }
 
 function addTopicRow(value = "") {
@@ -38,19 +36,21 @@ function addTopicRow(value = "") {
   input.value = value;
 
   const btnAdd = document.createElement("button");
+  btnAdd.type = "button";
   btnAdd.className = "btn-add-topic";
   btnAdd.textContent = "+";
-  btnAdd.type = "button";
   btnAdd.addEventListener("click", () => addTopicRow());
 
   const btnRem = document.createElement("button");
+  btnRem.type = "button";
   btnRem.className = "btn-add-topic";
   btnRem.textContent = "−";
-  btnRem.type = "button";
   btnRem.style.background = "rgba(248,113,113,.12)";
   btnRem.style.color = "#f87171";
   btnRem.addEventListener("click", () => {
-    if (topicsContainer.querySelectorAll(".topic-row").length > 1) row.remove();
+    if (topicsContainer.querySelectorAll(".topic-row").length > 1) {
+      row.remove();
+    }
   });
 
   row.appendChild(input);
@@ -59,23 +59,24 @@ function addTopicRow(value = "") {
   topicsContainer.appendChild(row);
 }
 
-// botão "+" inicial
-document.querySelector(".btn-add-topic")?.addEventListener("click", () => addTopicRow());
+function getTopicValues() {
+  return Array.from(document.querySelectorAll(".exam-topic-input"))
+    .map(i => i.value.trim())
+    .filter(Boolean);
+}
 
-// ── ABRIR / FECHAR MODAL ──────────────────────────────────────
+// ------------- MODAL DE PROVA / TRABALHO -----------------------
 
 function openExamModal(examId = null) {
   editingExamId = examId;
 
-  // limpa
-  topicsContainer.innerHTML = "";
-  addTopicRow();
+  resetTopicsContainer();
   inputExamSubject.value = "";
-  inputExamType.value = "prova";
-  inputExamDate.value = "";
-  inputExamTime.value = "";
-  inputExamWeight.value = "";
-  inputExamNotes.value = "";
+  inputExamType.value    = "prova";
+  inputExamDate.value    = "";
+  inputExamTime.value    = "";
+  inputExamWeight.value  = "";
+  inputExamNotes.value   = "";
   document.getElementById("modalExamTitle").textContent =
     examId ? "Editar Avaliação" : "Cadastrar Prova / Trabalho";
 
@@ -89,7 +90,11 @@ function openExamModal(examId = null) {
       inputExamWeight.value  = ex.weight || "";
       inputExamNotes.value   = ex.notes || "";
       topicsContainer.innerHTML = "";
-      (ex.topics || [""]).forEach(t => addTopicRow(t));
+      if (ex.topics && ex.topics.length) {
+        ex.topics.forEach(t => addTopicRow(t));
+      } else {
+        addTopicRow();
+      }
     }
   }
 
@@ -103,47 +108,41 @@ function closeExamModal() {
 modalExamClose.addEventListener("click",  closeExamModal);
 btnExamCancel.addEventListener("click",   closeExamModal);
 
-// ── SALVAR PROVA ──────────────────────────────────────────────
+// ------------- SALVAR AVALIAÇÃO -------------------------------
 
 btnExamSave.addEventListener("click", () => {
   const subject = inputExamSubject.value;
   const date    = inputExamDate.value;
-  const type    = inputExamType.value;
 
   if (!subject || !date) {
-    showToast("Preencha ao menos a disciplina e a data.", "warning");
+    showToast("Preencha, pelo menos, disciplina e data da avaliação.", "warning");
     return;
   }
 
-  const topics = getTopicInputs();
+  const exam = {
+    id:       editingExamId || uuid(),
+    subject,
+    type:     inputExamType.value,
+    date,
+    time:     inputExamTime.value || null,
+    weight:   inputExamWeight.value ? parseFloat(inputExamWeight.value) : null,
+    notes:    inputExamNotes.value.trim(),
+    topics:   getTopicValues(),
+  };
 
   if (editingExamId) {
     const idx = exams.findIndex(e => e.id === editingExamId);
     if (idx >= 0) {
-      exams[idx] = {
-        ...exams[idx],
-        subject, type, date,
-        time:   inputExamTime.value   || null,
-        weight: parseFloat(inputExamWeight.value) || null,
-        notes:  inputExamNotes.value.trim(),
-        topics,
-      };
+      exams[idx] = exam;
     }
   } else {
-    exams.push({
-      id: uuid(),
-      subject, type, date,
-      time:   inputExamTime.value   || null,
-      weight: parseFloat(inputExamWeight.value) || null,
-      notes:  inputExamNotes.value.trim(),
-      topics,
-    });
+    exams.push(exam);
   }
 
   saveToStorage(STORAGE_KEYS.EXAMS, exams);
 
-  // remove blocos de estudo automáticos antigos e regenera
-  tasks = tasks.filter(t => t.source !== "auto:study");
+  // Regenera blocos de estudo automáticos
+  tasks = tasks.filter(t => !t.source.startsWith("auto:study"));
   generateStudyBlocksForAllExams();
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
 
@@ -152,7 +151,7 @@ btnExamSave.addEventListener("click", () => {
   renderExamsView();
 });
 
-// ── URGÊNCIA ─────────────────────────────────────────────────
+// ------------- URGÊNCIA / LABELS ------------------------------
 
 function examUrgency(exam) {
   const d = daysUntil(exam.date);
@@ -171,83 +170,22 @@ function urgencyLabel(u) {
   }[u] || "🟢";
 }
 
-// ── TELA DE PROVAS ────────────────────────────────────────────
-
-function renderExamsView() {
-  sectionExams.innerHTML = "";
-
-  const header = document.createElement("div");
-  header.className = "section-header";
-  header.innerHTML = `
-    <div>
-      <h1>Provas & Trabalhos</h1>
-      <p>Cadastre suas avaliações e os conteúdos — o plano de estudo é gerado automaticamente.</p>
-    </div>
-  `;
-
-  const btnNew = document.createElement("button");
-  btnNew.className = "btn-add-task";
-  btnNew.textContent = "+ Nova Avaliação";
-  btnNew.addEventListener("click", () => openExamModal());
-  header.appendChild(btnNew);
-  sectionExams.appendChild(header);
-
-  const upcoming = exams
-    .filter(e => daysUntil(e.date) >= 0)
-    .sort((a,b) => new Date(a.date)-new Date(b.date));
-
-  const past = exams
-    .filter(e => daysUntil(e.date) < 0)
-    .sort((a,b) => new Date(b.date)-new Date(a.date));
-
-  if (!exams.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.innerHTML = `
-      <div class="empty-icon">📝</div>
-      <p>Nenhuma avaliação cadastrada ainda.<br>
-      Clique em "+ Nova Avaliação" para começar.</p>
-    `;
-    sectionExams.appendChild(empty);
-    return;
-  }
-
-  // ── PRÓXIMAS ──
-  if (upcoming.length) {
-    const card = document.createElement("div");
-    card.className = "card";
-    const t = document.createElement("div");
-    t.className = "card-title";
-    t.textContent = "Próximas avaliações";
-    card.appendChild(t);
-    upcoming.forEach(ex => card.appendChild(buildExamCard(ex)));
-    sectionExams.appendChild(card);
-  }
-
-  // ── REALIZADAS ──
-  if (past.length) {
-    const card2 = document.createElement("div");
-    card2.className = "card";
-    const t2 = document.createElement("div");
-    t2.className = "card-title";
-    t2.textContent = "Avaliações realizadas";
-    card2.appendChild(t2);
-    past.forEach(ex => card2.appendChild(buildExamCard(ex)));
-    sectionExams.appendChild(card2);
-  }
-}
+// ------------- LISTA DE AVALIAÇÕES ----------------------------
 
 function buildExamCard(ex) {
   const urgency = examUrgency(ex);
-  const dias    = daysUntil(ex.date);
+  const days    = daysUntil(ex.date);
 
   const card = document.createElement("div");
-  card.className = `exam-card ${urgency === "urgent" ? "urgent" : urgency === "soon" ? "soon" : "ok"}`;
+  card.className = `exam-card ${
+    urgency === "urgent" ? "urgent" :
+    urgency === "soon"   ? "soon"   : "ok"
+  }`;
 
   const icon = document.createElement("div");
   icon.className = "exam-icon";
   icon.textContent = {
-    prova:"📝", trabalho:"📋", seminario:"🎤", pratica:"🔬"
+    prova:"📝", trabalho:"📋", seminario:"🎤", pratica:"🔬",
   }[ex.type] || "📝";
 
   const info = document.createElement("div");
@@ -260,19 +198,22 @@ function buildExamCard(ex) {
   const meta = document.createElement("div");
   meta.className = "exam-meta";
 
-  const dateStr = new Date(ex.date + "T12:00:00").toLocaleDateString("pt-BR",{
-    weekday:"short", day:"2-digit", month:"2-digit"
+  const dateStr = new Date(ex.date + "T12:00:00").toLocaleDateString("pt-BR", {
+    weekday:"short", day:"2-digit", month:"2-digit",
   });
-  const diasText = dias === 0 ? "Hoje!" : dias === 1 ? "Amanhã!" : `Em ${dias} dias`;
+  const daysText = days < 0
+    ? "Já passou"
+    : days === 0 ? "Hoje!"
+    : days === 1 ? "Amanhã!"
+    : `Em ${days} dias`;
 
   meta.innerHTML = `
     <span>${dateStr} · ${ex.time || "--:--"}</span>
     <span>${urgencyLabel(urgency)}</span>
-    <span style="color:#7c6af7">${diasText}</span>
+    <span style="color:#7c6af7">${daysText}</span>
     ${ex.weight ? `<span>Nota: ${ex.weight}</span>` : ""}
   `;
 
-  // tópicos / conteúdos
   const topicsEl = document.createElement("div");
   topicsEl.className = "exam-topics";
   if (ex.topics && ex.topics.length) {
@@ -284,8 +225,8 @@ function buildExamCard(ex) {
     });
   } else {
     const tip = document.createElement("span");
-    tip.style.cssText = "font-size:.75rem;color:#4b5563";
-    tip.textContent = "Nenhum conteúdo cadastrado — edite para adicionar.";
+    tip.style.cssText = "font-size:.75rem;color:#64748b";
+    tip.textContent = "Adicione os conteúdos para montar um plano de estudo mais específico.";
     topicsEl.appendChild(tip);
   }
 
@@ -298,15 +239,15 @@ function buildExamCard(ex) {
 
   const btnEdit = document.createElement("button");
   btnEdit.className = "btn-icon";
-  btnEdit.title = "Editar";
   btnEdit.textContent = "✎";
+  btnEdit.title = "Editar";
   btnEdit.addEventListener("click", () => openExamModal(ex.id));
 
-  const btnDel = document.createElement("button");
-  btnDel.className = "btn-icon danger";
-  btnDel.title = "Excluir";
-  btnDel.textContent = "🗑";
-  btnDel.addEventListener("click", () => {
+  const btnDelete = document.createElement("button");
+  btnDelete.className = "btn-icon danger";
+  btnDelete.textContent = "🗑";
+  btnDelete.title = "Excluir";
+  btnDelete.addEventListener("click", () => {
     if (confirm("Excluir esta avaliação e seus blocos de estudo?")) {
       exams = exams.filter(e => e.id !== ex.id);
       tasks = tasks.filter(t => t.source !== `auto:study:${ex.id}`);
@@ -318,70 +259,125 @@ function buildExamCard(ex) {
   });
 
   actions.appendChild(btnEdit);
-  actions.appendChild(btnDel);
+  actions.appendChild(btnDelete);
 
   card.appendChild(icon);
   card.appendChild(info);
   card.appendChild(actions);
+
   return card;
 }
 
-// ── GERADOR DE BLOCOS DE ESTUDO ───────────────────────────────
-// Para cada prova cadastrada, distribui blocos de estudo
-// nos dias anteriores, respeitando horários livres.
-// Se há duas provas próximas, alterna por dia entre as matérias.
+function renderExamsView() {
+  sectionExams.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "section-header";
+  header.innerHTML = `
+    <div>
+      <h1>Provas & Trabalhos</h1>
+      <p>Cadastre avaliações, conteúdos e deixe o sistema organizar os estudos.</p>
+    </div>
+  `;
+  const btnNew = document.createElement("button");
+  btnNew.className = "btn-add-task";
+  btnNew.textContent = "+ Nova Avaliação";
+  btnNew.addEventListener("click", () => openExamModal());
+  header.appendChild(btnNew);
+  sectionExams.appendChild(header);
+
+  if (!exams.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    empty.innerHTML = `
+      <div class="empty-icon">📝</div>
+      <p>Nenhuma avaliação cadastrada ainda.</p>
+    `;
+    sectionExams.appendChild(empty);
+    return;
+  }
+
+  const upcoming = exams
+    .filter(e => daysUntil(e.date) >= 0)
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+  const past = exams
+    .filter(e => daysUntil(e.date) < 0)
+    .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  if (upcoming.length) {
+    const card = document.createElement("div");
+    card.className = "card";
+    const t = document.createElement("div");
+    t.className = "card-title";
+    t.textContent = "Próximas avaliações";
+    card.appendChild(t);
+    upcoming.forEach(ex => card.appendChild(buildExamCard(ex)));
+    sectionExams.appendChild(card);
+  }
+
+  if (past.length) {
+    const card2 = document.createElement("div");
+    card2.className = "card";
+    const t2 = document.createElement("div");
+    t2.className = "card-title";
+    t2.textContent = "Avaliações já realizadas";
+    card2.appendChild(t2);
+    past.forEach(ex => card2.appendChild(buildExamCard(ex)));
+    sectionExams.appendChild(card2);
+  }
+}
+
+// ------------- BLOCOS DE ESTUDO AUTOMÁTICOS -------------------
+// Usa STUDY_SLOTS_BY_DAY (em data.js)
 
 function generateStudyBlocksForAllExams() {
-  // Remove blocos antigos
   tasks = tasks.filter(t => !t.source.startsWith("auto:study"));
 
   const upcoming = exams
     .filter(e => daysUntil(e.date) >= 0)
-    .sort((a,b) => new Date(a.date)-new Date(b.date));
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
 
   if (!upcoming.length) return;
 
-  // Para cada prova, define janela de estudo (até 7 dias antes ou desde hoje)
-  upcoming.forEach(ex => {
-    const examDate   = toDateOnly(new Date(ex.date));
-    const today      = toDateOnly(new Date());
-    const daysLeft   = daysUntil(ex.date);
-    const studyDays  = Math.max(1, Math.min(daysLeft, 7));
+  upcoming.forEach((ex, idx) => {
+    const examDate = toDateOnly(new Date(ex.date));
+    const today    = toDateOnly(new Date());
+    const daysLeft = daysUntil(ex.date);
+    const studySpan = Math.max(1, Math.min(daysLeft, 7)); // até 7 dias antes
 
-    for (let i = 0; i < studyDays; i++) {
+    for (let offset = 0; offset < studySpan; offset++) {
       const d = new Date(today);
-      d.setDate(today.getDate() + i);
+      d.setDate(today.getDate() + offset);
       const dateStr = d.toISOString().slice(0,10);
       const weekday = d.getDay();
 
-      // slots disponíveis para este dia
-      const slotsForDay = (STUDY_SLOTS_BY_DAY[weekday] || []);
+      // Alternância se houver duas provas próximas:
+      if (upcoming.length >= 2) {
+        // ex: prova 0 pega offsets pares, prova 1 offsets ímpares
+        if (offset % upcoming.length !== idx % upcoming.length) continue;
+      }
 
-      // se há duas provas, alterna: prova A nos dias pares, B nos ímpares
-      const examIdx = upcoming.indexOf(ex);
-      if (upcoming.length >= 2 && examIdx % 2 !== i % 2) continue;
-
-      // verifica ocupação existente e pega o primeiro slot livre
-      slotsForDay.forEach(slot => {
-        const clash = tasks.some(t =>
+      const slots = STUDY_SLOTS_BY_DAY[weekday] || [];
+      slots.forEach(slot => {
+        const conflict = tasks.some(t =>
           t.date === dateStr &&
           isTimeOverlap(t.start, t.end, slot.start, slot.end)
         );
-        if (!clash) {
-          // distribui tópicos da prova pelos blocos
-          const topicCount = (ex.topics || []).length;
-          const topicIdx   = i % (topicCount || 1);
-          const topic      = topicCount ? ex.topics[topicIdx] : "Revisão geral";
+        if (!conflict) {
+          const topics = ex.topics || [];
+          const topic  = topics.length
+            ? topics[(offset) % topics.length]
+            : "Revisão geral";
 
           tasks.push({
             id: uuid(),
             title: `Estudo · ${ex.subject}`,
             date: dateStr,
             start: slot.start,
-            end: slot.end,
+            end:   slot.end,
             category: "study",
             priority: daysLeft <= 3 ? "high" : "medium",
-            notes: `Conteúdo: ${topic}\nMétodo sugerido: Pomodoro 25min · pausa 5min · repita`,
+            notes: `Conteúdo: ${topic}\nSugestão: 2 ciclos Pomodoro (25min foco / 5min pausa).`,
             done: false,
             source: `auto:study:${ex.id}`,
           });
@@ -391,7 +387,7 @@ function generateStudyBlocksForAllExams() {
   });
 }
 
-// ── TELA DE PLANO DE ESTUDOS ──────────────────────────────────
+// ------------- TELA DE PLANO DE ESTUDOS -----------------------
 
 function renderStudyView() {
   sectionStudy.innerHTML = "";
@@ -401,13 +397,13 @@ function renderStudyView() {
   header.innerHTML = `
     <div>
       <h1>Plano de Estudos</h1>
-      <p>Gerado automaticamente com base nas suas avaliações cadastradas.</p>
+      <p>Organizado automaticamente a partir das suas provas e trabalhos.</p>
     </div>
   `;
   sectionStudy.appendChild(header);
 
   const studyTasks = tasks
-    .filter(t => t.source.startsWith("auto:study") && daysUntil(t.date) >= 0)
+    .filter(t => t.source.startsWith("auto:study"))
     .sort((a,b) => {
       if (a.date !== b.date) return a.date.localeCompare(b.date);
       return timeStrToMinutes(a.start) - timeStrToMinutes(b.start);
@@ -418,89 +414,73 @@ function renderStudyView() {
     empty.className = "empty-state";
     empty.innerHTML = `
       <div class="empty-icon">📚</div>
-      <p>Nenhuma prova cadastrada ainda.<br>
-      Vá em <strong>Provas & Trabalhos</strong> e adicione sua primeira avaliação.</p>
+      <p>Nenhum bloco de estudo criado ainda.<br>
+      Vá em <strong>Provas & Trabalhos</strong> e cadastre uma avaliação.</p>
     `;
     sectionStudy.appendChild(empty);
     return;
   }
 
-  // agrupa por data
-  const byDate = {};
+  const grouped = {};
   studyTasks.forEach(t => {
-    if (!byDate[t.date]) byDate[t.date] = [];
-    byDate[t.date].push(t);
+    if (!grouped[t.date]) grouped[t.date] = [];
+    grouped[t.date].push(t);
   });
 
-  Object.entries(byDate).forEach(([dateStr, dayTasks]) => {
+  Object.entries(grouped).forEach(([dateStr, list]) => {
     const card = document.createElement("div");
     card.className = "card";
 
-    const dateLabel = new Date(dateStr + "T12:00:00").toLocaleDateString("pt-BR",{
+    const dLabel = new Date(dateStr + "T12:00:00").toLocaleDateString("pt-BR", {
       weekday:"long", day:"2-digit", month:"2-digit"
     });
+    const title = document.createElement("div");
+    title.className = "card-title";
+    title.textContent = dLabel;
+    card.appendChild(title);
 
-    const cardTitle = document.createElement("div");
-    cardTitle.className = "card-title";
-    cardTitle.textContent = dateLabel;
-    card.appendChild(cardTitle);
-
-    dayTasks.forEach(t => {
+    list.forEach(t => {
       const row = document.createElement("div");
       row.className = "study-day";
 
-      const timeEl = document.createElement("div");
-      timeEl.className = "study-day-label";
-      timeEl.textContent = `${t.start} – ${t.end}`;
+      const time = document.createElement("div");
+      time.className = "study-day-label";
+      time.textContent = `${t.start} – ${t.end}`;
 
       const content = document.createElement("div");
       content.className = "study-day-content";
 
-      const titleEl = document.createElement("span");
-      titleEl.textContent = t.title;
+      const main = document.createElement("div");
+      main.textContent = t.title;
 
-      const methodSpan = document.createElement("span");
-      methodSpan.className = "study-day-method";
-      methodSpan.textContent = "Pomodoro 25+5";
+      const method = document.createElement("span");
+      method.className = "study-day-method";
+      method.textContent = "Pomodoro 25+5";
 
-      const notesEl = document.createElement("div");
-      notesEl.style.cssText = "font-size:.75rem;color:#64748b;margin-top:3px";
-      notesEl.textContent = t.notes.split("\n")[0]; // só a linha do conteúdo
+      const note = document.createElement("div");
+      note.style.cssText = "font-size:.75rem;color:#64748b;margin-top:3px";
+      note.textContent = t.notes.split("\n")[0]; // primeira linha: conteúdo
 
-      const chk = document.createElement("input");
-      chk.type = "checkbox";
-      chk.checked = t.done;
-      chk.style.cssText = "margin-left:auto;accent-color:#7c6af7;width:16px;height:16px;cursor:pointer";
-      chk.addEventListener("change", () => {
-        t.done = chk.checked;
+      const check = document.createElement("input");
+      check.type = "checkbox";
+      check.checked = t.done;
+      check.style.cssText = "margin-left:auto;accent-color:#7c6af7;width:16px;height:16px;cursor:pointer";
+      check.addEventListener("change", () => {
+        t.done = check.checked;
         saveToStorage(STORAGE_KEYS.TASKS, tasks);
-        showToast(chk.checked ? "Bloco concluído! 🎉" : "Marcado como pendente.", chk.checked ? "success":"info");
+        showToast(check.checked ? "Bloco concluído!" : "Bloco marcado como pendente.", check.checked ? "success" : "info");
       });
 
-      content.appendChild(titleEl);
-      content.appendChild(methodSpan);
-      content.appendChild(notesEl);
+      content.appendChild(main);
+      content.appendChild(method);
+      content.appendChild(note);
 
-      row.appendChild(timeEl);
+      row.appendChild(time);
       row.appendChild(content);
-      row.appendChild(chk);
+      row.appendChild(check);
       card.appendChild(row);
     });
 
     sectionStudy.appendChild(card);
   });
-
-  // dica TDAH
-  const tipCard = document.createElement("div");
-  tipCard.className = "card";
-  tipCard.innerHTML = `
-    <div class="card-title">⚡ Dica TDAH</div>
-    <p style="font-size:.84rem;color:#9ca3af;line-height:1.6">
-      Os blocos de estudo foram montados com <strong>40 minutos máximo</strong> cada — duração ideal
-      para manter o foco com TDAH. Se perceber que sua mente dispersou antes, tudo bem:
-      anote o ponto onde parou, faça uma pausa de 5 min e volte.
-      Na aba <strong>Métodos TDAH</strong> você encontra o timer Pomodoro integrado.
-    </p>
-  `;
-  sectionStudy.appendChild(tipCard);
 }
