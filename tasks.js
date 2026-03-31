@@ -314,32 +314,65 @@ function renderTasksView() {
   renderTaskList();
 }
 
-// ---------- VISÃO SEMANAL (ABA WEEK) -------------------------
-
-// ---------- VISÃO SEMANAL (ABA WEEK) -------------------------
+// ===============================
+// renderWeekView — Visão semanal completa
+// ===============================
 
 function renderWeekView() {
   sectionWeek.innerHTML = "";
 
+  // ── CABEÇALHO ─────────────────────────────────────────────
   const header = document.createElement("div");
   header.className = "section-header";
   header.innerHTML = `
     <div>
       <h1>Semana</h1>
-      <p>Visão de segunda a sexta: casa, aulas, estudos, lazer, tênis de mesa.</p>
+      <p>Segunda a sexta: aulas, casa, estudo, tênis e lazer.</p>
     </div>
   `;
   sectionWeek.appendChild(header);
 
-  // Começa na segunda-feira da semana da data em visualização
-  const base = toDateOnly(currentDateView);
-  const dayIdx = base.getDay(); // 0=dom,1=seg
-  const diffToMonday = (dayIdx + 6) % 7; // transforma domingo em 6, seg em 0
+  // ── NAVEGAÇÃO ENTRE SEMANAS ───────────────────────────────
+  const navRow = document.createElement("div");
+  navRow.className = "day-nav";
+
+  const btnPrev = document.createElement("button");
+  btnPrev.className = "btn-day-nav";
+  btnPrev.textContent = "< Semana anterior";
+  btnPrev.addEventListener("click", () => {
+    currentDateView.setDate(currentDateView.getDate() - 7);
+    renderWeekView();
+  });
+
+  const btnNext = document.createElement("button");
+  btnNext.className = "btn-day-nav";
+  btnNext.textContent = "Próxima semana >";
+  btnNext.addEventListener("click", () => {
+    currentDateView.setDate(currentDateView.getDate() + 7);
+    renderWeekView();
+  });
+
+  const btnCurrent = document.createElement("button");
+  btnCurrent.className = "btn-today";
+  btnCurrent.textContent = "Esta semana";
+  btnCurrent.addEventListener("click", () => {
+    currentDateView = toDateOnly(new Date());
+    renderWeekView();
+  });
+
+  navRow.appendChild(btnPrev);
+  navRow.appendChild(btnCurrent);
+  navRow.appendChild(btnNext);
+  sectionWeek.appendChild(navRow);
+
+  // ── CALCULAR SEGUNDA-FEIRA DA SEMANA ──────────────────────
+  const base = toDateOnly(new Date(currentDateView));
+  const diffToMonday = (base.getDay() + 6) % 7;
   base.setDate(base.getDate() - diffToMonday);
 
-  // Antes de montar, garantimos que os dias da semana tenham tarefas auto-geradas
+  // ── GERAR OS 5 DIAS (SEG–SEX) ─────────────────────────────
   const weekDates = [];
-  for (let i = 0; i < 5; i++) { // segunda a sexta
+  for (let i = 0; i < 5; i++) {
     const d = new Date(base);
     d.setDate(base.getDate() + i);
     const dateStr = d.toISOString().slice(0, 10);
@@ -347,63 +380,103 @@ function renderWeekView() {
     weekDates.push({ date: d, dateStr });
   }
 
+  // ── PERÍODO EXIBIDO ───────────────────────────────────────
+  const periodLabel = document.createElement("div");
+  periodLabel.style.cssText = "font-size:.82rem;color:#64748b;margin-bottom:14px;";
+  const labelStart = weekDates[0].date.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" });
+  const labelEnd   = weekDates[4].date.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit", year:"numeric" });
+  periodLabel.textContent = `${labelStart} – ${labelEnd}`;
+  sectionWeek.appendChild(periodLabel);
+
+  // ── LEGENDA DE CORES ──────────────────────────────────────
+  const legend = document.createElement("div");
+  legend.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;";
+
+  const legendItems = [
+    { cls:"ev-class",   label:"Aula"    },
+    { cls:"ev-home",    label:"Casa"    },
+    { cls:"ev-study",   label:"Estudo"  },
+    { cls:"ev-sport",   label:"Esporte" },
+    { cls:"ev-leisure", label:"Lazer"   },
+    { cls:"ev-exam",    label:"Prova"   },
+  ];
+
+  legendItems.forEach(item => {
+    const chip = document.createElement("div");
+    chip.className = `week-event ${item.cls}`;
+    chip.style.cssText = "font-size:.72rem;padding:3px 10px;border-radius:99px;";
+    chip.textContent = item.label;
+    legend.appendChild(chip);
+  });
+
+  sectionWeek.appendChild(legend);
+
+  // ── CARD DA GRADE ─────────────────────────────────────────
   const card = document.createElement("div");
   card.className = "card";
+  card.style.overflowX = "auto";
 
-  const title = document.createElement("div");
-  title.className = "card-title";
-  const weekStartLabel = weekDates[0].date.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" });
-  const weekEndLabel   = weekDates[4].date.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" });
-  title.textContent = `Semana ${weekStartLabel} – ${weekEndLabel}`;
-  card.appendChild(title);
-
+  // ── GRADE (CSS GRID) ──────────────────────────────────────
   const grid = document.createElement("div");
   grid.className = "week-grid";
 
-  // cabeçalho das colunas
-  const colLabels = ["Hora","Seg","Ter","Qua","Qui","Sex"];
-  colLabels.forEach((lab, idx) => {
+  // LINHA 1: cabeçalho (Hora | Seg | Ter | Qua | Qui | Sex)
+  const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex"];
+  const today = toDateOnly(new Date());
+
+  // célula vazia do canto
+  const cornerCell = document.createElement("div");
+  cornerCell.className = "week-header";
+  cornerCell.textContent = "Hora";
+  grid.appendChild(cornerCell);
+
+  dayNames.forEach((name, i) => {
     const h = document.createElement("div");
     h.className = "week-header";
-    h.textContent = lab;
 
-    if (idx > 0) {
-      const d = weekDates[idx-1].date;
-      const today = toDateOnly(new Date());
-      if (d.getTime() === today.getTime()) {
-        h.classList.add("today");
-      }
+    const dayDate = weekDates[i].date;
+    const isToday = dayDate.getTime() === today.getTime();
+
+    const dayNum = dayDate.toLocaleDateString("pt-BR", { day:"2-digit", month:"2-digit" });
+
+    h.innerHTML = `<div>${name}</div><div style="font-size:.7rem;font-weight:400;margin-top:2px">${dayNum}</div>`;
+
+    if (isToday) {
+      h.classList.add("today");
     }
+
     grid.appendChild(h);
   });
 
-  // janela de horários (07:00 às 22:00, de hora em hora)
-  const startMinutes = 7 * 60;
-  const endMinutes   = 22 * 60;
+  // LINHAS DE HORÁRIO: 07:00 até 22:00 de hora em hora
+  const START_MIN = 7 * 60;
+  const END_MIN   = 22 * 60;
 
-  for (let m = startMinutes; m <= endMinutes; m += 60) {
-    // coluna de hora
+  for (let m = START_MIN; m <= END_MIN; m += 60) {
+    // célula de hora
     const timeCell = document.createElement("div");
     timeCell.className = "week-time";
     timeCell.textContent = minutesToTimeStr(m);
     grid.appendChild(timeCell);
 
-    // colunas de cada dia
-    for (let i = 0; i < 5; i++) {
-      const { dateStr } = weekDates[i];
+    // células dos 5 dias
+    for (let col = 0; col < 5; col++) {
+      const { dateStr } = weekDates[col];
       const cell = document.createElement("div");
       cell.className = "week-cell";
 
-      const slotTasks = tasks.filter(t =>
-        t.date === dateStr &&
-        t.start &&
-        timeStrToMinutes(t.start) >= m &&
-        timeStrToMinutes(t.start) <  m + 60
-      );
+      // tarefas que começam dentro deste bloco de 1 hora
+      const slotTasks = tasks.filter(t => {
+        if (t.date !== dateStr) return false;
+        if (!t.start) return false;
+        const tMin = timeStrToMinutes(t.start);
+        return tMin >= m && tMin < m + 60;
+      });
 
       slotTasks.forEach(t => {
         const ev = document.createElement("div");
-        const cls = {
+
+        const evClass = {
           home:    "ev-home",
           study:   "ev-study",
           sport:   "ev-sport",
@@ -412,8 +485,23 @@ function renderWeekView() {
           exam:    "ev-exam",
         }[t.category] || "ev-study";
 
-        ev.className = "week-event " + cls;
-        ev.textContent = t.title;
+        ev.className = `week-event ${evClass}`;
+
+        // nome curto para caber na célula
+        const shortTitle = t.title.length > 22
+          ? t.title.slice(0, 20) + "…"
+          : t.title;
+
+        ev.textContent = shortTitle;
+        ev.title = `${t.title}\n${t.start}${t.end ? " – " + t.end : ""}`;
+
+        // click no evento abre o dashboard naquele dia
+        ev.style.cursor = "pointer";
+        ev.addEventListener("click", () => {
+          currentDateView = toDateOnly(new Date(dateStr));
+          setActiveSection("dashboard");
+        });
+
         cell.appendChild(ev);
       });
 
@@ -424,16 +512,71 @@ function renderWeekView() {
   card.appendChild(grid);
   sectionWeek.appendChild(card);
 
-  // Dica breve
-  const tip = document.createElement("div");
-  tip.className = "card";
-  tip.innerHTML = `
-    <div class="card-title">Como usar a visão semanal</div>
+  // ── RESUMO POR DIA ────────────────────────────────────────
+  const summaryCard = document.createElement("div");
+  summaryCard.className = "card";
+
+  const summaryTitle = document.createElement("div");
+  summaryTitle.className = "card-title";
+  summaryTitle.textContent = "Resumo da semana";
+  summaryCard.appendChild(summaryTitle);
+
+  weekDates.forEach(({ date, dateStr }) => {
+    const dayTasks = tasks.filter(t => t.date === dateStr);
+    const done     = dayTasks.filter(t => t.done).length;
+    const total    = dayTasks.length;
+    const pct      = total > 0 ? Math.round((done / total) * 100) : 0;
+
+    const isToday  = date.getTime() === today.getTime();
+
+    const row = document.createElement("div");
+    row.style.cssText = `
+      display:flex;align-items:center;gap:12px;
+      padding:9px 0;border-bottom:1px solid #1f2937;
+    `;
+
+    const dayLabel = document.createElement("div");
+    dayLabel.style.cssText = "min-width:130px;font-size:.85rem;";
+    dayLabel.innerHTML = `
+      ${date.toLocaleDateString("pt-BR", { weekday:"short", day:"2-digit", month:"2-digit" })}
+      ${isToday ? '<span class="badge badge-green" style="margin-left:6px">Hoje</span>' : ""}
+    `;
+
+    const barWrapper = document.createElement("div");
+    barWrapper.style.cssText = "flex:1;background:#1f2937;border-radius:99px;height:8px;overflow:hidden;";
+
+    const barFill = document.createElement("div");
+    barFill.style.cssText = `
+      height:100%;border-radius:99px;width:${pct}%;
+      background:linear-gradient(90deg,#7c6af7,#22d3ee);
+      transition:width .6s ease;
+    `;
+
+    barWrapper.appendChild(barFill);
+
+    const countLabel = document.createElement("div");
+    countLabel.style.cssText = "font-size:.78rem;color:#9ca3af;min-width:70px;text-align:right;";
+    countLabel.textContent = `${done}/${total} (${pct}%)`;
+
+    row.appendChild(dayLabel);
+    row.appendChild(barWrapper);
+    row.appendChild(countLabel);
+    summaryCard.appendChild(row);
+  });
+
+  sectionWeek.appendChild(summaryCard);
+
+  // ── DICA ─────────────────────────────────────────────────
+  const tipCard = document.createElement("div");
+  tipCard.className = "card";
+  tipCard.innerHTML = `
+    <div class="card-title">💡 Como usar a visão semanal</div>
     <p style="font-size:.84rem;color:#9ca3af;line-height:1.6">
-      Use esta visão para perceber onde estão os <strong>dias mais carregados</strong> e onde sobram janelas.
-      Se sentir que um dia está muito cheio (especialmente com aula + estudo + casa),
-      considere mover alguns blocos de estudo para a sexta ou fim de semana, que tendem a ser mais flexíveis.
+      Clique em qualquer evento da grade para ir direto ao dia correspondente.
+      Use a barra de progresso abaixo para identificar dias sobrecarregados
+      e considere mover blocos de estudo para a <strong>sexta-feira</strong>
+      ou <strong>fim de semana</strong>, que costumam ter mais espaço na sua grade.
     </p>
   `;
-  sectionWeek.appendChild(tip);
+  sectionWeek.appendChild(tipCard);
 }
