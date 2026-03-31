@@ -33,7 +33,7 @@ const btnTaskSave = document.getElementById("btnTaskSave");
 
 // inputs do modal tarefa
 const inputTaskName = document.getElementById("taskName");
-const inputTaskDate = document.getElementById("taskDate");
+const inputTaskDate = document.getElementById("taskDate");      
 const inputTaskTimeStart = document.getElementById("taskTimeStart");
 const inputTaskTimeEnd = document.getElementById("taskTimeEnd");
 const inputTaskCategory = document.getElementById("taskCategory");
@@ -524,12 +524,6 @@ function renderDashboard() {
 // ===============================
 function renderWeekView() {
   sectionWeek.innerHTML = "<p style='color:#94a3b8'>Visão semanal será implementada na próxima parte.</p>";
-}
-function renderExamsView() {
-  sectionExams.innerHTML = "<p style='color:#94a3b8'>Cadastro de provas e trabalhos será implementado na próxima parte.</p>";
-}
-function renderStudyView() {
-  sectionStudy.innerHTML = "<p style='color:#94a3b8'>Plano de estudos automático será implementado na próxima parte.</p>";
 }
 function renderTasksView() {
   sectionTasks.innerHTML = "<p style='color:#94a3b8'>Lista completa de tarefas será implementada na próxima parte.</p>";
