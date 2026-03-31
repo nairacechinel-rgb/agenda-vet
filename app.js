@@ -215,23 +215,29 @@ btnTaskSave.addEventListener("click", () => {
 // ===============================
 // DASHBOARD (HOJE / DIA SELECIONADO)
 // ===============================
-
 function ensureAutoTasksForDate(dateStr) {
-  // não recria se já existir tarefa auto:house para esse dia
+  // ROTINA DOMÉSTICA (diária + semanal)
   const hasHouse = tasks.some((t) => t.date === dateStr && t.source === "auto:house");
   if (!hasHouse) {
-    const newHouse = generateHouseTasksForDate(dateStr);
-    tasks = tasks.concat(newHouse);
+    const daily = generateDailyHouseTasks(dateStr);
+    const weekly = generateWeeklyHouseTasks(dateStr);
+    tasks = tasks.concat(daily, weekly);
   }
 
-  // tênis
+  // TÊNIS DE MESA
   const hasTenis = tasks.some((t) => t.date === dateStr && t.source === "auto:tenis");
   if (!hasTenis) {
     const tenis = generateTenisForDate(dateStr);
     tasks = tasks.concat(tenis);
   }
 
-  // aulas automáticas e provas automáticas virão nas próximas partes
+  // AULAS
+  const hasClass = tasks.some((t) => t.date === dateStr && t.source === "auto:class");
+  if (!hasClass && typeof generateClassTasksForDate === "function") {
+    const cls = generateClassTasksForDate(dateStr);
+    tasks = tasks.concat(cls);
+  }
+
   saveToStorage(STORAGE_KEYS.TASKS, tasks);
 }
 
