@@ -1,1230 +1,697 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8"/>
-<title>Agenda Vet – Naira</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --card:#111827;--card2:#1a2235;--border:#1e2d45;
-  --accent:#a855f7;--accent2:#7c3aed;--accent-light:#c4b5fd;
-  --text:#f9fafb;--muted:#8b9ab5;
-  --warning:#facc15;--danger:#f87171;
-  --ring:0 0 0 3px rgba(168,85,247,.6);
-}
-body{
-  font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
-  background:radial-gradient(ellipse at top,#0f172a,#020617 60%,#000);
-  color:var(--text);
-  min-height:100vh;
-  font-size:17px;
-  line-height:1.6;
-  display:flex;
-  justify-content:center;
-  padding:12px 8px 32px;
-}
-.app{
-  width:100%;
-  max-width:1200px;
-  background:rgba(11,17,32,.98);
-  border-radius:20px;
-  border:1px solid var(--border);
-  box-shadow:0 28px 60px rgba(0,0,0,.7);
-  padding:20px 20px 16px;
-}
-@media(max-width:700px){
-  .app{border-radius:12px;padding:12px 10px;}
-  body{padding:6px 4px 24px;}
-}
-h1{font-size:1.7rem;font-weight:700;}
-h3{font-size:1.05rem;font-weight:600;}
-.muted{color:var(--muted);}
+/* ===========================
+   style.css — Dark Mode Total
+   Agenda Naira | MedVet
+=========================== */
 
-/* HEADER */
-.app-header{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:10px;
-  margin-bottom:16px;
-}
-.app-header p{color:var(--muted);font-size:0.95rem;margin-top:3px;}
-.header-right{text-align:right;}
-.badge{
-  display:inline-block;
-  padding:3px 10px;
-  border-radius:999px;
-  font-size:0.78rem;
-  border:1px solid rgba(168,85,247,.7);
-  color:var(--accent-light);
-  background:rgba(88,28,135,.28);
-}
-#todayLabel{margin-top:4px;font-size:0.92rem;font-weight:600;color:var(--accent-light);}
-
-/* ABAS */
-.tab-list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:5px;
-  margin-bottom:16px;
-  border-bottom:2px solid var(--border);
-  padding-bottom:6px;
-}
-.tab-btn{
-  padding:8px 16px;
-  border-radius:10px 10px 0 0;
-  border:1px solid transparent;
-  background:transparent;
-  color:var(--muted);
-  font-size:0.92rem;
-  font-weight:500;
-  cursor:pointer;
-  transition:all .18s;
-}
-.tab-btn:hover{color:var(--text);background:rgba(255,255,255,.05);}
-.tab-btn.active{
-  background:linear-gradient(135deg,var(--accent2),var(--accent));
-  color:#fff;
-}
-.tab-panel{display:none;}
-.tab-panel.active{display:block;}
-
-/* GRID / CARDS */
-.col2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;}
-@media(max-width:880px){.col2{grid-template-columns:1fr;}}
-.col-stack{display:flex;flex-direction:column;gap:14px;}
-.card{
-  background:var(--card);
-  border-radius:14px;
-  border:1px solid var(--border);
-  padding:13px 14px;
-}
-.card-title{
-  font-size:1.05rem;
-  font-weight:600;
-  margin-bottom:10px;
-  display:flex;
-  align-items:center;
-  gap:7px;
+:root {
+  --bg-primary:    #0f1117;
+  --bg-secondary:  #1a1d27;
+  --bg-card:       #21253a;
+  --bg-hover:      #2a2f47;
+  --accent:        #7c6af7;
+  --accent-light:  #a99bf9;
+  --accent-glow:   rgba(124, 106, 247, 0.15);
+  --green:         #4ade80;
+  --yellow:        #facc15;
+  --red:           #f87171;
+  --orange:        #fb923c;
+  --cyan:          #22d3ee;
+  --text-primary:  #f1f5f9;
+  --text-secondary:#94a3b8;
+  --text-muted:    #4b5563;
+  --border:        #2d3249;
+  --border-light:  #3a4060;
+  --sidebar-w:     260px;
+  --topbar-h:      64px;
+  --radius:        12px;
+  --radius-sm:     8px;
+  --shadow:        0 4px 24px rgba(0,0,0,0.4);
+  --transition:    0.2s ease;
+  --font:          'Inter', sans-serif;
 }
 
-/* FORM */
-label{display:block;font-size:0.82rem;color:var(--muted);margin-bottom:3px;}
-input[type=time],input[type=date],input[type=text],input[type=number],select,textarea{
-  width:100%;
-  padding:8px 10px;
-  border-radius:9px;
-  border:1px solid var(--border);
-  background:#030b1a;
-  color:var(--text);
-  font-size:0.93rem;
-  font-family:inherit;
-  outline:none;
-  transition:border .15s,box-shadow .15s;
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
 }
-input:focus,select:focus,textarea:focus{
-  border-color:var(--accent2);
-  box-shadow:var(--ring);
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; font-family: var(--font); border: none; outline: none; }
+input, select, textarea {
+  font-family: var(--font);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  width: 100%;
+  font-size: 0.95rem;
+  transition: border var(--transition), box-shadow var(--transition);
 }
-textarea{min-height:68px;resize:vertical;}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px;}
-.r3{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:9px;margin-bottom:9px;}
-.r1{margin-bottom:9px;}
-@media(max-width:640px){.r2,.r3{grid-template-columns:1fr;}}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+select option { background: var(--bg-secondary); }
 
-/* BOTÕES */
-.btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:5px;
-  padding:8px 14px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  font-size:0.83rem;
-  font-weight:600;
-  letter-spacing:.03em;
-  text-transform:uppercase;
-  font-family:inherit;
-  transition:all .18s;
-}
-.btn-primary{
-  background:linear-gradient(135deg,#7c3aed,#a855f7);
-  color:#fff;
-  box-shadow:0 8px 20px rgba(88,28,135,.45);
-}
-.btn-primary:hover{
-  transform:translateY(-1px);
-  box-shadow:0 12px 26px rgba(88,28,135,.6);
-}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
-.btn-ghost:hover{background:rgba(255,255,255,.05);color:var(--text);}
-.btn-danger{background:transparent;border:1px solid rgba(248,113,113,.7);color:var(--danger);}
-.btn-danger:hover{background:rgba(127,29,29,.35);}
-.btn-warn{background:transparent;border:1px solid rgba(250,204,21,.7);color:var(--warning);}
-.btn-warn:hover{background:rgba(120,80,0,.3);}
-.btn-sm{padding:5px 10px;font-size:0.78rem;}
-.btn-block{width:100%;}
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-/* DIA CHIPS */
-.day-chips{display:flex;flex-wrap:wrap;gap:5px;margin:5px 0 10px;}
-.day-chip{
-  padding:6px 12px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  background:#030b1a;
-  color:var(--muted);
-  font-size:0.88rem;
-  cursor:pointer;
-  transition:all .15s;
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 100;
+  transition: transform var(--transition);
 }
-.day-chip:hover{color:var(--text);}
-.day-chip.active{
-  background:linear-gradient(135deg,#6366f1,#a855f7);
-  color:#fff;
-  border-color:transparent;
-}
+.sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
 
-/* ROTINA */
-.routine-wrap{margin-top:10px;border-radius:10px;border:1px solid var(--border);overflow:hidden;}
-.routine-head{
-  display:grid;
-  grid-template-columns:90px 1fr 120px 70px 80px;
-  gap:6px;
-  padding:6px 8px;
-  background:#030b1a;
-  font-size:0.8rem;
-  color:var(--muted);
-  font-weight:600;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--border);
 }
-.routine-scroll{max-height:460px;overflow-y:auto;}
-.routine-scroll::-webkit-scrollbar{width:5px;}
-.routine-scroll::-webkit-scrollbar-thumb{background:#374151;border-radius:999px;}
-.routine-row{
-  display:grid;
-  grid-template-columns:90px 1fr 120px 70px 80px;
-  gap:6px;
-  padding:6px 8px;
-  align-items:start;
-  border-top:1px solid rgba(30,45,69,.7);
-  font-size:0.88rem;
+.avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1rem;
+  flex-shrink: 0;
 }
-.routine-row:nth-child(odd){background:rgba(15,23,42,.75);}
-.routine-row:nth-child(even){background:rgba(15,23,42,.45);}
-.routine-row.study-slot{border-left:3px solid var(--accent2);}
-.routine-row.leisure-slot{border-left:3px solid #4ade80;}
-.rtime{
-  font-family:ui-monospace,Menlo,Monaco,"Courier New",monospace;
-  font-size:0.82rem;
-  color:var(--accent-light);
-  padding-top:2px;
+.user-info { flex: 1; overflow: hidden; }
+.user-name { display: block; font-weight: 600; font-size: 0.95rem; }
+.user-sub { display: block; font-size: 0.75rem; color: var(--text-secondary); }
+.sidebar-toggle {
+  background: none;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition);
 }
-.rlabel-main{font-size:0.9rem;font-weight:500;}
-.rlabel-sub{font-size:0.75rem;color:var(--muted);}
-.rtag{
-  display:inline-flex;
-  align-items:center;
-  padding:2px 8px;
-  border-radius:999px;
-  font-size:0.77rem;
-  white-space:nowrap;
-  border:1px solid rgba(148,163,184,.4);
-  color:var(--muted);
-}
-.rtag.auto{border-color:#22c55e;color:#bbf7d0;background:rgba(22,163,74,.18);}
-.rtag.tennis{border-color:#60a5fa;color:#dbeafe;background:rgba(37,99,235,.25);}
-.rtag.class{border-color:#e2e8f0;color:#f1f5f9;background:rgba(17,24,39,.9);}
-.rtag.study{border-color:#a855f7;color:var(--accent-light);background:rgba(88,28,135,.28);}
-.rtag.org{border-color:#f59e0b;color:#fef3c7;background:rgba(146,64,14,.28);}
-.rtag.custom{border-color:#38bdf8;color:#bae6fd;background:rgba(14,116,144,.2);}
-.rtag.leisure{border-color:#4ade80;color:#bbf7d0;background:rgba(22,163,74,.18);}
-.rfocus{font-size:0.78rem;color:var(--muted);padding-top:2px;}
-.hint{font-size:0.8rem;color:var(--muted);margin-top:3px;}
-.topic-in-routine{
-  margin-top:6px;
-  padding:6px 8px;
-  border-radius:8px;
-  background:rgba(88,28,135,.12);
-  border:1px solid rgba(168,85,247,.25);
-}
-.topic-in-routine .exam-label{
-  font-size:0.82rem;
-  font-weight:600;
-  color:var(--accent-light);
-  margin-bottom:3px;
-}
-.topic-in-routine ul{margin-left:16px;font-size:0.82rem;}
-.topic-in-routine ul li{margin-bottom:2px;color:var(--text);}
-.topic-in-routine .method-note{font-size:0.75rem;color:var(--muted);margin-top:3px;}
-.edit-inline{
-  display:none;
-  flex-direction:column;
-  gap:6px;
-  background:rgba(11,17,32,.98);
-  border:1px solid var(--border);
-  border-radius:10px;
-  padding:8px 10px;
-  margin-top:4px;
-}
+.sidebar-toggle:hover { color: var(--text-primary); }
 
-/* CHECKLIST */
-.checklist-list{display:flex;flex-direction:column;gap:5px;margin-top:6px;}
-.check-item{
-  display:flex;
-  align-items:flex-start;
-  gap:8px;
-  padding:4px 3px;
-  border-radius:7px;
-  transition:background .1s;
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
 }
-.check-item:hover{background:rgba(255,255,255,.04);}
-.check-item input[type=checkbox]{
-  width:19px;
-  height:19px;
-  flex-shrink:0;
-  margin-top:2px;
-  accent-color:var(--accent);
-  cursor:pointer;
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: background var(--transition), color var(--transition);
 }
-.check-label{cursor:pointer;flex:1;font-size:0.95rem;}
-.check-label.done{text-decoration:line-through;color:var(--muted);}
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active {
+  background: var(--accent-glow);
+  color: var(--accent-light);
+  font-weight: 600;
+  border-left: 3px solid var(--accent);
+}
+.nav-icon { font-size: 1rem; width: 20px; text-align: center; }
 
-/* POMODORO */
-.pomo-wrap{margin-top:8px;display:flex;flex-direction:column;align-items:center;gap:8px;}
-.pomo-ring{position:relative;width:130px;height:130px;}
-.pomo-ring svg{transform:rotate(-90deg);}
-.pomo-ring .track{fill:none;stroke:#1e2d45;stroke-width:8;}
-.pomo-ring .fill{fill:none;stroke:url(#pg);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .9s linear;}
-.pomo-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
-.pomo-time{
-  font-family:ui-monospace,Menlo,Monaco,"Courier New",monospace;
-  font-size:1.7rem;
-  font-weight:700;
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border);
 }
-.pomo-phase{font-size:0.8rem;color:var(--muted);}
-.pomo-btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
-.pomo-counts{display:flex;flex-wrap:wrap;gap:10px;font-size:0.88rem;color:var(--muted);}
+.btn-sync {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all var(--transition);
+}
+.btn-sync:hover { background: var(--accent-glow); color: var(--accent-light); }
 
-/* PROVAS / ESTUDO */
-.scroll-box{max-height:400px;overflow-y:auto;}
-.scroll-box::-webkit-scrollbar{width:5px;}
-.scroll-box::-webkit-scrollbar-thumb{background:#374151;border-radius:999px;}
-.exam-card{
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:var(--card2);
-  padding:10px 12px;
-  margin-bottom:8px;
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: margin var(--transition);
 }
-.exam-name-display{font-weight:600;font-size:0.98rem;}
-.exam-meta{font-size:0.82rem;color:var(--muted);margin-top:2px;}
-.exam-edit-section{border-top:1px solid var(--border);margin-top:8px;padding-top:8px;}
-.exam-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
-.exam-badge{
-  font-size:0.75rem;
-  padding:2px 7px;
-  border-radius:999px;
-  border:1px solid rgba(234,179,8,.8);
-  color:#fef3c7;
-  background:rgba(161,98,7,.4);
+.main-content.expanded { margin-left: 0; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 90;
 }
-.exam-load{font-size:0.8rem;color:var(--accent-light);}
-.study-item{
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:var(--card2);
-  padding:9px 11px;
-  margin-bottom:7px;
+.btn-menu-mobile {
+  display: none;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 1.3rem;
+  padding: 6px;
 }
-.study-date{
-  font-family:ui-monospace,Menlo,Monaco,"Courier New",monospace;
-  font-size:0.84rem;
-  color:var(--accent-light);
-  margin-bottom:4px;
-  font-weight:600;
+.topbar-title {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
-.study-topics-ul{margin-left:18px;margin-top:3px;font-size:0.88rem;}
-.study-topics-ul li{margin-bottom:2px;}
-.study-method-pill{
-  display:inline-flex;
-  margin-top:4px;
-  padding:2px 8px;
-  border-radius:999px;
-  border:1px solid rgba(129,140,248,.8);
-  color:#e0e7ff;
-  background:rgba(49,46,129,.6);
-  font-size:0.75rem;
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.btn-add-task {
+  background: var(--accent);
+  color: #fff;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: opacity var(--transition), transform var(--transition);
+}
+.btn-add-task:hover { opacity: 0.85; transform: translateY(-1px); }
+.current-date {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
 }
 
-/* ALERTAS / MÉTODOS / FOOTER */
-.alert{padding:8px 10px;border-radius:9px;font-size:0.87rem;border:1px solid;margin-bottom:8px;}
-.alert-info{border-color:#3b82f6;background:rgba(15,23,42,.95);color:#bfdbfe;}
-.alert-warn{border-color:#eab308;background:rgba(23,23,23,.95);color:#fef3c7;}
-.methods-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
-@media(max-width:640px){.methods-grid{grid-template-columns:1fr;}}
-.method-card{
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:var(--card2);
-  padding:10px 12px;
+/* ===== SECTIONS ===== */
+.section { display: none; padding: 28px 24px; animation: fadeIn 0.25s ease; }
+.section.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
 }
-.method-title{font-size:1rem;font-weight:600;margin-bottom:4px;}
-.method-tag{
-  display:inline-block;
-  font-size:0.78rem;
-  padding:2px 7px;
-  border-radius:999px;
-  border:1px solid rgba(148,163,184,.6);
-  color:var(--muted);
-  margin-bottom:6px;
-}
-.method-steps{font-size:0.88rem;margin-left:16px;}
-.method-steps li{margin-bottom:4px;}
-hr{border:none;border-top:1px solid var(--border);margin:12px 0;}
-.footer{margin-top:12px;text-align:right;font-size:0.8rem;color:var(--muted);}
-</style>
-</head>
-<body>
-<div class="app">
-
-<header class="app-header">
-  <div>
-    <h1>🐾 Agenda Vet – Naira</h1>
-    <p>Rotina inteligente · Medicina Veterinária 7ª fase · Turma 2707NA · Foco TDAH</p>
-  </div>
-  <div class="header-right">
-    <span class="badge">Modo foco TDAH</span>
-    <div id="todayLabel"></div>
-  </div>
-</header>
-
-<div class="tab-list">
-  <button class="tab-btn active" data-tab="rotina">🗓 Rotina</button>
-  <button class="tab-btn" data-tab="provas">📝 Provas</button>
-  <button class="tab-btn" data-tab="estudo">📚 Estudo diário</button>
-  <button class="tab-btn" data-tab="metodos">💡 Métodos</button>
-</div>
-
-<!-- ROTINA -->
-<section class="tab-panel active" id="tab-rotina">
-  <div class="col2">
-    <div class="card">
-      <div class="card-title">🗓 Rotina do dia</div>
-      <label>Selecione o dia</label>
-      <div class="day-chips" id="daySelector">
-        <button class="day-chip active" data-day="1">Seg</button>
-        <button class="day-chip" data-day="2">Ter</button>
-        <button class="day-chip" data-day="3">Qua</button>
-        <button class="day-chip" data-day="4">Qui</button>
-        <button class="day-chip" data-day="5">Sex</button>
-        <button class="day-chip" data-day="6">Sáb</button>
-        <button class="day-chip" data-day="0">Dom</button>
-      </div>
-      <div class="r2">
-        <div>
-          <label for="wakeInput">Horário para acordar</label>
-          <input type="time" id="wakeInput"/>
-          <div class="hint">Seg/Qua/Sex têm tênis às 08:00.</div>
-        </div>
-        <div>
-          <label>Resumo</label>
-          <div id="daySummary" style="font-size:0.9rem;color:var(--accent-light);margin-top:4px;"></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" id="applyWake" type="button">✔ Aplicar horário</button>
-        <button class="btn btn-danger btn-sm" id="resetDayBtn" type="button">↺ Resetar dia</button>
-        <button class="btn btn-ghost btn-sm" id="resetAllBtn" type="button">⚠ Limpar tudo</button>
-      </div>
-
-      <details style="margin-bottom:10px;">
-        <summary style="cursor:pointer;font-size:0.9rem;color:var(--accent-light);user-select:none;">➕ Adicionar / substituir atividade</summary>
-        <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
-          <div class="r2">
-            <div><label>Início</label><input type="time" id="newActStart"/></div>
-            <div><label>Fim</label><input type="time" id="newActEnd"/></div>
-          </div>
-          <div class="r1"><label>Nome</label><input type="text" id="newActLabel" placeholder="Ex.: Revisão de histologia"/></div>
-          <div class="r1"><label>Observação (opcional)</label><input type="text" id="newActSub" placeholder="Ex.: focar em lâminas"/></div>
-          <button class="btn btn-primary btn-sm" id="addActivityBtn" type="button">+ Adicionar</button>
-          <div class="hint">Se o horário já tiver algo, a nova atividade <strong>substitui</strong> o que estava ali.</div>
-        </div>
-      </details>
-
-      <div class="routine-wrap">
-        <div class="routine-head">
-          <span>Hora</span><span>Atividade</span><span>Tipo</span><span>Foco</span><span style="text-align:center;">Ação</span>
-        </div>
-        <div class="routine-scroll" id="routineBody"></div>
-      </div>
-      <div class="hint" style="margin-top:6px;">🟣 Estudo dividido por prova · 🟢 Lazer em Sáb/Dom</div>
-    </div>
-
-    <div class="col-stack">
-      <div class="card">
-        <div class="card-title">✅ Checklist do dia</div>
-        <div class="checklist-list" id="checklistBody"></div>
-        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
-          <button class="btn btn-ghost btn-sm" id="checkAll" type="button">Marcar tudo</button>
-          <button class="btn btn-ghost btn-sm" id="uncheckAll" type="button">Desmarcar tudo</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🍅 Pomodoro</div>
-        <div class="pomo-wrap">
-          <div class="pomo-ring">
-            <svg viewBox="0 0 130 130" width="130" height="130">
-              <defs>
-                <linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#7c3aed"/>
-                  <stop offset="100%" stop-color="#a855f7"/>
-                </linearGradient>
-              </defs>
-              <circle class="track" cx="65" cy="65" r="55"/>
-              <circle class="fill" id="pomoCircle" cx="65" cy="65" r="55" stroke-dasharray="345.4" stroke-dashoffset="0"/>
-            </svg>
-            <div class="pomo-center">
-              <div class="pomo-time" id="pomoDisplay">25:00</div>
-              <div class="pomo-phase" id="pomoPhase">Foco 🟣</div>
-            </div>
-          </div>
-          <div class="pomo-btns">
-            <button class="btn btn-primary btn-sm" id="pomoStart" type="button">▶ Iniciar</button>
-            <button class="btn btn-ghost btn-sm" id="pomoPause" type="button">⏸ Pausar</button>
-            <button class="btn btn-ghost btn-sm" id="pomoReset" type="button">↺ Reiniciar</button>
-          </div>
-          <div class="pomo-counts">
-            <span>🟣 Blocos: <strong id="pomoBlocks">0</strong></span>
-            <span>☕ Pausas: <strong id="pomoBreaks">0</strong></span>
-          </div>
-          <div style="width:100%;display:flex;flex-direction:column;gap:4px;">
-            <label for="pomoDur">Foco (min)</label><input type="number" id="pomoDur" min="5" max="60" value="25" style="width:90px;">
-            <label for="pomoBreakDur">Pausa (min)</label><input type="number" id="pomoBreakDur" min="1" max="30" value="5" style="width:90px;">
-          </div>
-          <div class="hint">Após 4 blocos → pausa de 15–20 min.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PROVAS -->
-<section class="tab-panel" id="tab-provas">
-  <div class="col2">
-    <div class="card">
-      <div class="card-title">📝 Cadastrar prova</div>
-      <form id="examForm">
-        <div class="r1"><label>Nome da prova</label><input type="text" id="examName" required></div>
-        <div class="r3">
-          <div><label>Data</label><input type="date" id="examDate" required></div>
-          <div><label>Nº tópicos</label><input type="number" id="totalTopics" min="1" max="99" value="10"></div>
-          <div><label>Dias antes</label><input type="number" id="daysBefore" min="1" max="30" value="7"></div>
-        </div>
-        <div class="r1"><label>Conteúdos (vírgulas)</label><textarea id="examTopics"></textarea></div>
-        <div class="r2">
-          <div>
-            <label>Dificuldade</label>
-            <select id="examDiff">
-              <option value="baixa">Baixa</option>
-              <option value="médio" selected>Médio</option>
-              <option value="alta">Alta</option>
-            </select>
-          </div>
-          <div>
-            <label>Método</label>
-            <select id="examMethod">
-              <option value="pomodoro">Pomodoro</option>
-              <option value="flashcards">Flashcards</option>
-              <option value="mapas">Mapas mentais</option>
-              <option value="ensinar">Ensinar em voz alta</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-block" type="submit">+ Adicionar prova</button>
-      </form>
-    </div>
-    <div class="card">
-      <div class="card-title">📋 Provas cadastradas</div>
-      <div id="examListEmpty" class="alert alert-info">Nenhuma prova cadastrada ainda.</div>
-      <div class="scroll-box" id="examList"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ESTUDO -->
-<section class="tab-panel" id="tab-estudo">
-  <div class="card">
-    <div class="card-title">📚 Plano de estudo automático</div>
-    <div id="studyHint" class="alert alert-info">Cadastre pelo menos uma prova.</div>
-    <div class="scroll-box" id="studyList" style="max-height:560px;"></div>
-  </div>
-</section>
-
-<!-- MÉTODOS -->
-<section class="tab-panel" id="tab-metodos">
-  <div class="card">
-    <div class="card-title">💡 Estratégias de estudo</div>
-    <div class="methods-grid">
-      <div class="method-card">
-        <div class="method-title">🍅 Pomodoro</div>
-        <span class="method-tag">25 min foco · 5 min pausa</span>
-        <ol class="method-steps">
-          <li>Um tópico por bloco.</li>
-          <li>25 min de foco real.</li>
-          <li>5 min de pausa com movimento.</li>
-          <li>Após 4 blocos, 15–20 min de descanso.</li>
-        </ol>
-      </div>
-      <div class="method-card">
-        <div class="method-title">🃏 Flashcards</div>
-        <span class="method-tag">Ótimo para Anatomia/Clínica</span>
-        <ol class="method-steps">
-          <li>Pergunta de um lado, resposta do outro.</li>
-          <li>Responda em voz alta.</li>
-          <li>Revise os que você mais erra.</li>
-        </ol>
-      </div>
-      <div class="method-card">
-        <div class="method-title">🧠 Mapas mentais</div>
-        <span class="method-tag">Temas grandes</span>
-        <ol class="method-steps">
-          <li>Centro: tema principal.</li>
-          <li>Ramos: subtemas.</li>
-          <li>Use cores e desenhos simples.</li>
-        </ol>
-      </div>
-      <div class="method-card">
-        <div class="method-title">🗣 Ensinar em voz alta</div>
-        <span class="method-tag">Fixação profunda</span>
-        <ol class="method-steps">
-          <li>Explique como se fosse dar aula.</li>
-          <li>Grave áudio e ouça depois.</li>
-          <li>Onde travar = ponto fraco.</li>
-        </ol>
-      </div>
-    </div>
-    <hr/>
-    <h3 style="margin-bottom:8px;">🐾 Dicas para TDAH</h3>
-    <ul style="font-size:0.93rem;margin-left:18px;display:flex;flex-direction:column;gap:5px;">
-      <li>Use casos clínicos reais que te interessam.</li>
-      <li>Defina só <strong>uma tarefa</strong> por bloco.</li>
-      <li>Celular longe nos 25 min de foco.</li>
-      <li>Reconheça cada bloco concluído.</li>
-      <li>Sábado e domingo: use os horários livres para lazer de verdade.</li>
-    </ul>
-  </div>
-</section>
-
-<footer class="footer">Agenda Vet · Naira · 7ª fase · Turma 2707NA</footer>
-</div>
-<script>
-const DAY_NAMES=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
-function toMin(t){const[h,m]=t.split(":").map(Number);return h*60+m;}
-function toStr(n){return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");}
-function isoDate(d){return d.toISOString().split("T")[0];}
-function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
-function overlaps(as,ae,bs,be){return as<be&&bs<ae;}
-function methodLabel(k){
-  return{
-    pomodoro:"Pomodoro",
-    flashcards:"Flashcards",
-    mapas:"Mapas mentais",
-    ensinar:"Ensinar em voz alta"
-  }[k]||k;
-}
-const LS={
-  load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},
-  save(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
-};
-(function(){
-  const n=new Date();
-  document.getElementById("todayLabel").textContent=
-    "Hoje: "+DAY_NAMES[n.getDay()]+" "+n.toLocaleDateString("pt-BR");
-})();
-document.querySelectorAll(".tab-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
-    document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById("tab-"+btn.dataset.tab).classList.add("active");
-  });
-});
-
-/* HORÁRIOS FIXOS */
-const DEFAULT_WAKE={0:"08:30",1:"06:40",2:"07:30",3:"06:40",4:"07:30",5:"06:40",6:"08:30"};
-const TENNIS={1:{s:"08:00",e:"08:40"},3:{s:"08:00",e:"08:40"},5:{s:"08:00",e:"08:40"}};
-
-/* GRADE IGUAL À IMAGEM */
-const CLASSES=[
-  // Segunda (1)
-  {day:1,s:"15:20",e:"16:00",label:"Anat Patológica Vet II"},
-  {day:1,s:"16:00",e:"16:40",label:"Anat Patológica Vet II"},
-  {day:1,s:"18:40",e:"19:20",label:"Clínica de Peq Animais"},
-  {day:1,s:"19:20",e:"20:00",label:"Clínica de Peq Animais"},
-  // Terça (2)
-  {day:2,s:"13:30",e:"14:10",label:"Clínica Peq Anim - Prática"},
-  {day:2,s:"14:10",e:"14:50",label:"Clínica Peq Anim - Prática"},
-  {day:2,s:"18:40",e:"19:20",label:"Anat Patológica Vet II"},
-  {day:2,s:"19:20",e:"20:00",label:"Anat Patológica Vet II"},
-  {day:2,s:"20:30",e:"21:10",label:"Diagnost por Imagem Anim"},
-  {day:2,s:"21:10",e:"21:50",label:"Diagnost por Imagem Anim"},
-  // Quarta (3)
-  {day:3,s:"20:30",e:"21:10",label:"Anestesiologia"},
-  {day:3,s:"21:10",e:"21:50",label:"Anestesiologia"},
-  // Quinta (4)
-  {day:4,s:"08:30",e:"09:10",label:"Anestesiologia - Prática"},
-  {day:4,s:"09:10",e:"09:50",label:"Anestesiologia - Prática"},
-  {day:4,s:"09:50",e:"10:30",label:"Técnica Cirúrgica - Prática"},
-  {day:4,s:"10:30",e:"11:10",label:"Técnica Cirúrgica - Prática"},
-  {day:4,s:"15:20",e:"16:00",label:"Técnica Cirúrgica"},
-  {day:4,s:"16:00",e:"16:40",label:"Técnica Cirúrgica"},
-  {day:4,s:"18:40",e:"19:20",label:"Clínica de Peq Animais"},
-  {day:4,s:"19:20",e:"20:00",label:"Clínica de Peq Animais"},
-  {day:4,s:"20:30",e:"21:10",label:"Clínica de Peq Animais"}
-];
-
-/* JANELAS DE ESTUDO – FIM DE SEMANA MAIS LEVE */
-const STUDY_WINDOWS={
-  0:[{s:"16:00",e:"18:00"}],                  // Domingo: só um bloco
-  1:[{s:"09:30",e:"14:30"},{s:"20:30",e:"22:00"}],
-  2:[{s:"09:00",e:"13:00"},{s:"15:00",e:"18:00"}],
-  3:[{s:"09:00",e:"19:30"}],
-  4:[{s:"11:30",e:"14:30"}],
-  5:[{s:"09:00",e:"18:00"}],
-  6:[{s:"10:00",e:"12:00"},{s:"16:00",e:"17:00"}] // Sábado: 2h + 1h
-};
-
-/* BLOCOS DE LAZER EM SÁB/DOM */
-const LEISURE={
-  0:[
-    {s:"08:30",e:"16:00",label:"🎉 Tempo livre",sub:"Descanse e recarregue.",tag:"leisure",focus:"Lazer"},
-    {s:"18:00",e:"22:00",label:"🎉 Tempo livre",sub:"Noite tranquila.",tag:"leisure",focus:"Lazer"}
-  ],
-  6:[
-    {s:"08:30",e:"10:00",label:"🎉 Manhã livre",sub:"Sem pressa hoje.",tag:"leisure",focus:"Lazer"},
-    {s:"12:00",e:"16:00",label:"🎉 Tarde livre",sub:"Curta o fim de semana.",tag:"leisure",focus:"Lazer"},
-    {s:"17:00",e:"22:00",label:"🎉 Noite livre",sub:"Recarregue para a semana.",tag:"leisure",focus:"Lazer"}
-  ]
-};
-
-/* ESTADO */
-const customWake=LS.load("vet_wake",{...DEFAULT_WAKE});
-const customActs=LS.load("vet_acts",{0:[],1:[],2:[],3:[],4:[],5:[],6:[]});
-let exams=LS.load("vet_exams",[]).map(e=>({...e,date:new Date(e.date)}));
-let studyPlanMap={};
-let currentDay=1;
-
-function saveWake(){LS.save("vet_wake",customWake);}
-function saveActs(){LS.save("vet_acts",customActs);}
-function saveExams(){LS.save("vet_exams",exams.map(e=>({...e,date:e.date.toISOString()})));}
-
-function isoForDay(day){
-  const n=new Date();n.setHours(0,0,0,0);
-  return isoDate(addDays(n,(day-n.getDay()+7)%7));
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
 }
 
-/* ROTINA */
-const routineBody=document.getElementById("routineBody");
-
-function buildRoutine(day){
-  routineBody.innerHTML="";
-  const wake=customWake[day];
-  document.getElementById("wakeInput").value=wake;
-  const wM=toMin(wake);
-
-  const base=[];
-  base.push({sMin:wM,eMin:wM+20,label:"Acordar · higiene · skincare",sub:"Cuide de você antes de tudo.",tag:"auto",focus:"Presença"});
-  base.push({sMin:wM+20,eMin:wM+45,label:"Café da manhã",sub:"Energia para o cérebro.",tag:"auto",focus:"Energia"});
-  base.push({sMin:wM+45,eMin:wM+60,label:"Organizar mochila",sub:"Veja horários e materiais.",tag:"org",focus:"Preparo"});
-
-  if(TENNIS[day]){
-    base.push({sMin:toMin(TENNIS[day].s),eMin:toMin(TENNIS[day].e),label:"Tênis de mesa",sub:"Movimento ajuda o foco.",tag:"tennis",focus:"Movimento"});
-  }
-
-  CLASSES.filter(c=>c.day===day).forEach(c=>{
-    base.push({sMin:toMin(c.s),eMin:toMin(c.e),label:c.label,sub:"Aula da faculdade.",tag:"class",focus:"Atenção"});
-  });
-
-  (LEISURE[day]||[]).forEach(lb=>{
-    base.push({sMin:toMin(lb.s),eMin:toMin(lb.e),label:lb.label,sub:lb.sub,tag:lb.tag,focus:lb.focus});
-  });
-
-  const dayISO=isoForDay(day);
-  const provasHoje=studyPlanMap[dayISO]||[];
-
-  (STUDY_WINDOWS[day]||[]).forEach(w=>{
-    const wS=toMin(w.s),wE=toMin(w.e),total=wE-wS;
-    if(!provasHoje.length){
-      base.push({sMin:wS,eMin:wE,label:"Janela de estudo",sub:"Blocos Pomodoro aqui.",tag:"study",focus:"Foco 25/5",isStudy:true,topics:[]});
-    }else{
-      const slice=Math.floor(total/provasHoje.length)||total;
-      provasHoje.forEach((entry,i)=>{
-        const sS=wS+i*slice;
-        const sE=(i===provasHoje.length-1)?wE:sS+slice;
-        base.push({
-          sMin:sS,eMin:sE,
-          label:"Estudo: "+entry.examName,
-          sub:"Método: "+methodLabel(entry.method)+" · Dif.: "+entry.diff,
-          tag:"study",focus:"Foco 25/5",
-          isStudy:true,topics:[entry]
-        });
-      });
-    }
-  });
-
-  const customs=customActs[day]||[];
-  const visible=base.filter(fb=>!customs.some(ca=>overlaps(toMin(ca.s),toMin(ca.e),fb.sMin,fb.eMin)));
-  const rows=[
-    ...visible.map(r=>({...r,fixed:true})),
-    ...customs.map(a=>({
-      sMin:toMin(a.s),eMin:toMin(a.e),
-      label:a.label,sub:a.sub||"Atividade personalizada.",
-      tag:"custom",focus:"Flexível",
-      fixed:false,customId:a.id
-    }))
-  ].sort((a,b)=>a.sMin-b.sMin);
-
-  const nc=CLASSES.filter(c=>c.day===day).length;
-  const parts=["Acorda às "+wake];
-  if(TENNIS[day])parts.push("tênis 08:00");
-  if(day===0||day===6)parts.push("fim de semana 🎉");
-  else parts.push(nc?nc+" aula(s)":"sem aulas");
-  document.getElementById("daySummary").textContent=parts.join(" · ");
-
-  rows.forEach(r=>appendRow(r,day));
-  buildChecklist(day);
+/* ===== GRID DE HORÁRIOS ===== */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-function appendRow(r,day){
-  const row=document.createElement("div");
-  row.className="routine-row"+(r.isStudy?" study-slot":"")+(r.tag==="leisure"?" leisure-slot":"");
-
-  const tEl=document.createElement("div");
-  tEl.className="rtime";
-  tEl.textContent=toStr(r.sMin)+"–"+toStr(r.eMin);
-
-  const infoEl=document.createElement("div");
-  const main=document.createElement("div");main.className="rlabel-main";main.textContent=r.label;
-  const sub=document.createElement("div");sub.className="rlabel-sub";sub.textContent=r.sub;
-  infoEl.appendChild(main);infoEl.appendChild(sub);
-
-  if(r.isStudy&&r.topics&&r.topics.length){
-    r.topics.forEach(entry=>{
-      const box=document.createElement("div");box.className="topic-in-routine";
-      const lbl=document.createElement("div");lbl.className="exam-label";lbl.textContent="📘 "+entry.examName;box.appendChild(lbl);
-      if(entry.topics&&entry.topics.length){
-        const ul=document.createElement("ul");
-        entry.topics.forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.appendChild(li);});
-        box.appendChild(ul);
-      }
-      const mn=document.createElement("div");mn.className="method-note";mn.textContent="Método: "+methodLabel(entry.method);
-      box.appendChild(mn);infoEl.appendChild(box);
-    });
-  }
-
-  const tagMap={auto:"Autocuidado",tennis:"Tênis",class:"Faculdade",study:"Estudo",org:"Organização",custom:"Personalizada",leisure:"Lazer"};
-  const tagEl=document.createElement("div");tagEl.className="rtag "+r.tag;tagEl.textContent=tagMap[r.tag]||r.tag;
-
-  const focEl=document.createElement("div");focEl.className="rfocus";focEl.textContent=r.focus||"";
-
-  const actEl=document.createElement("div");
-  actEl.style.cssText="text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;";
-
-  row.appendChild(tEl);row.appendChild(infoEl);row.appendChild(tagEl);row.appendChild(focEl);row.appendChild(actEl);
-  routineBody.appendChild(row);
-
-  if(!r.fixed){
-    const eBtn=document.createElement("button");eBtn.className="btn btn-warn btn-sm";eBtn.type="button";eBtn.textContent="✏️";
-    const dBtn=document.createElement("button");dBtn.className="btn btn-danger btn-sm";dBtn.type="button";dBtn.textContent="✕";
-    actEl.appendChild(eBtn);actEl.appendChild(dBtn);
-
-    const fRow=document.createElement("div");fRow.style.gridColumn="1/-1";fRow.style.padding="0 8px 4px";
-    const ef=document.createElement("div");ef.className="edit-inline";
-
-    const r2=document.createElement("div");r2.className="r2";
-    const d1=document.createElement("div");
-    const l1=document.createElement("label");l1.textContent="Início";
-    const sIn=document.createElement("input");sIn.type="time";sIn.value=toStr(r.sMin);
-    d1.appendChild(l1);d1.appendChild(sIn);
-    const d2=document.createElement("div");
-    const l2=document.createElement("label");l2.textContent="Fim";
-    const eIn=document.createElement("input");eIn.type="time";eIn.value=toStr(r.eMin);
-    d2.appendChild(l2);d2.appendChild(eIn);
-    r2.appendChild(d1);r2.appendChild(d2);
-
-    const lL=document.createElement("label");lL.textContent="Nome";
-    const lI=document.createElement("input");lI.type="text";lI.value=r.label;
-    const sL=document.createElement("label");sL.textContent="Observação";
-    const sI=document.createElement("input");sI.type="text";sI.value=r.sub||"";
-
-    const btns=document.createElement("div");btns.style.display="flex";btns.style.gap="6px";
-    const svBtn=document.createElement("button");svBtn.className="btn btn-primary btn-sm";svBtn.type="button";svBtn.textContent="Salvar";
-    const cnBtn=document.createElement("button");cnBtn.className="btn btn-ghost btn-sm";cnBtn.type="button";cnBtn.textContent="Cancelar";
-    btns.appendChild(svBtn);btns.appendChild(cnBtn);
-
-    ef.appendChild(r2);ef.appendChild(lL);ef.appendChild(lI);ef.appendChild(sL);ef.appendChild(sI);ef.appendChild(btns);
-    fRow.appendChild(ef);routineBody.appendChild(fRow);
-
-    eBtn.addEventListener("click",()=>ef.classList.toggle("open"));
-    cnBtn.addEventListener("click",()=>ef.classList.remove("open"));
-    svBtn.addEventListener("click",()=>{
-      if(!sIn.value||!eIn.value){alert("Preencha início e fim.");return;}
-      const sM=toMin(sIn.value),eM=toMin(eIn.value);
-      if(sM>=eM){alert("Fim deve ser depois do início.");return;}
-      customActs[day]=(customActs[day]||[]).filter(a=>a.id===r.customId||!overlaps(toMin(a.s),toMin(a.e),sM,eM));
-      const act=(customActs[day]||[]).find(a=>a.id===r.customId);
-      if(act){act.s=sIn.value;act.e=eIn.value;act.label=lI.value||act.label;act.sub=sI.value;}
-      saveActs();buildRoutine(day);
-    });
-    dBtn.addEventListener("click",()=>{
-      customActs[day]=(customActs[day]||[]).filter(a=>a.id!==r.customId);
-      saveActs();buildRoutine(day);
-    });
-  }
+.timeline-item {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 12px;
+  align-items: start;
 }
-
-/* SELETOR DIA / ACORDAR / RESET */
-document.getElementById("daySelector").addEventListener("click",e=>{
-  if(!e.target.classList.contains("day-chip"))return;
-  document.querySelectorAll(".day-chip").forEach(b=>b.classList.remove("active"));
-  e.target.classList.add("active");
-  currentDay=Number(e.target.dataset.day);
-  buildRoutine(currentDay);
-});
-document.getElementById("applyWake").addEventListener("click",()=>{
-  const v=document.getElementById("wakeInput").value;
-  if(!v)return;
-  customWake[currentDay]=v;saveWake();buildRoutine(currentDay);
-});
-document.getElementById("resetDayBtn").addEventListener("click",()=>{
-  if(!confirm("Remover atividades personalizadas de "+DAY_NAMES[currentDay]+"?"))return;
-  customActs[currentDay]=[];saveActs();buildRoutine(currentDay);
-});
-document.getElementById("resetAllBtn").addEventListener("click",()=>{
-  if(!confirm("Apagar tudo (provas, atividades, checklist e horários)?"))return;
-  ["vet_wake","vet_acts","vet_exams","vet_checklist"].forEach(k=>localStorage.removeItem(k));
-  location.reload();
-});
-
-/* ADICIONAR ATIVIDADE */
-document.getElementById("addActivityBtn").addEventListener("click",()=>{
-  const s=document.getElementById("newActStart").value;
-  const e=document.getElementById("newActEnd").value;
-  const label=document.getElementById("newActLabel").value.trim();
-  const sub=document.getElementById("newActSub").value.trim();
-  if(!s||!e||!label){alert("Preencha início, fim e nome.");return;}
-  const sM=toMin(s),eM=toMin(e);
-  if(sM>=eM){alert("Fim deve ser depois do início.");return;}
-  customActs[currentDay]=(customActs[currentDay]||[]).filter(a=>!overlaps(toMin(a.s),toMin(a.e),sM,eM));
-  customActs[currentDay].push({id:Date.now(),s,e,label,sub});
-  saveActs();
-  document.getElementById("newActStart").value="";
-  document.getElementById("newActEnd").value="";
-  document.getElementById("newActLabel").value="";
-  document.getElementById("newActSub").value="";
-  buildRoutine(currentDay);
-});
-
-/* CHECKLIST */
-function buildChecklist(day){
-  const body=document.getElementById("checklistBody");body.innerHTML="";
-  const dayISO=isoForDay(day);
-  const hasPlan=(studyPlanMap[dayISO]||[]).length>0;
-  const customs=customActs[day]||[];
-  const items=[
-    {id:"c_"+day+"_wake",label:"Acordar às "+customWake[day]},
-    {id:"c_"+day+"_hyg",label:"Higiene pessoal"},
-    {id:"c_"+day+"_coffee",label:"Café da manhã"},
-    {id:"c_"+day+"_bag",label:"Organizar mochila"}
-  ];
-  if(TENNIS[day])items.push({id:"c_"+day+"_tennis",label:"Ir ao tênis de mesa 🏓"});
-
-  CLASSES.filter(c=>c.day===day).forEach((c,i)=>{
-    const covered=customs.some(a=>overlaps(toMin(a.s),toMin(a.e),toMin(c.s),toMin(c.e)));
-    if(!covered)items.push({id:"c_"+day+"_cls"+i,label:"Aula: "+c.label+" ("+c.s+"–"+c.e+")"});
-  });
-
-  (STUDY_WINDOWS[day]||[]).forEach((w,i)=>{
-    const covered=customs.some(a=>overlaps(toMin(a.s),toMin(a.e),toMin(w.s),toMin(w.e)));
-    if(!covered){
-      const provasHoje=studyPlanMap[dayISO]||[];
-      if(provasHoje.length>1){
-        provasHoje.forEach((p,pi)=>{
-          items.push({id:`c_${day}_st${i}_${pi}`,label:`Estudo ${p.examName} (bloco ${pi+1}/${provasHoje.length})`});
-        });
-      }else{
-        items.push({id:"c_"+day+"_st"+i,label:"Estudo: "+w.s+"–"+w.e+(hasPlan?" (tópicos na rotina)":"")});
-      }
-    }
-  });
-
-  if(day===0||day===6)items.push({id:"c_"+day+"_leisure",label:"Aproveitar o lazer 🎉"});
-
-  customs.forEach((a,i)=>items.push({id:"c_"+day+"_cu"+i,label:a.label+" ("+a.s+"–"+a.e+")"}));
-  items.push({id:"c_"+day+"_rev",label:"Revisão rápida (5 min)"});
-  items.push({id:"c_"+day+"_prep",label:"Preparar para amanhã e dormir bem"});
-
-  const saved=LS.load("vet_checklist",{});
-  items.forEach(it=>{
-    const row=document.createElement("div");row.className="check-item";
-    const cb=document.createElement("input");cb.type="checkbox";cb.id=it.id;cb.checked=!!saved[it.id];
-    const lbl=document.createElement("label");lbl.htmlFor=it.id;lbl.className="check-label"+(cb.checked?" done":"");lbl.textContent=it.label;
-    cb.addEventListener("change",()=>{
-      lbl.classList.toggle("done",cb.checked);
-      const d=LS.load("vet_checklist",{});d[it.id]=cb.checked;LS.save("vet_checklist",d);
-    });
-    row.appendChild(cb);row.appendChild(lbl);body.appendChild(row);
-  });
+.time-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: right;
+  padding-top: 8px;
+  font-weight: 500;
 }
-document.getElementById("checkAll").addEventListener("click",()=>{
-  document.querySelectorAll("#checklistBody input[type=checkbox]").forEach(cb=>{cb.checked=true;cb.dispatchEvent(new Event("change"));});
-});
-document.getElementById("uncheckAll").addEventListener("click",()=>{
-  document.querySelectorAll("#checklistBody input[type=checkbox]").forEach(cb=>{cb.checked=false;cb.dispatchEvent(new Event("change"));});
-});
-
-/* POMODORO */
-let pomoInterval=null,pomoRunning=false,pomoPhase="focus";
-let pomoBlocks=0,pomoBreaks=0,pomoTotal=25*60,pomoRemain=25*60;
-const CIRC=345.4;
-const pdEl=document.getElementById("pomoDisplay");
-const ppEl=document.getElementById("pomoPhase");
-const pbEl=document.getElementById("pomoBlocks");
-const pbrEl=document.getElementById("pomoBreaks");
-const pcEl=document.getElementById("pomoCircle");
-function renderPomo(){
-  const m=Math.floor(pomoRemain/60),s=pomoRemain%60;
-  pdEl.textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
-  ppEl.textContent=pomoPhase==="focus"?"Foco 🟣":"Pausa 🟢";
-  pbEl.textContent=pomoBlocks;pbrEl.textContent=pomoBreaks;
-  pcEl.style.strokeDashoffset=String(CIRC*(1-pomoRemain/pomoTotal));
+.time-block {
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  border-left: 3px solid var(--border-light);
+  font-size: 0.88rem;
+  position: relative;
+  transition: transform var(--transition);
 }
-function tickPomo(){
-  if(pomoRemain>0){pomoRemain--;renderPomo();return;}
-  clearInterval(pomoInterval);pomoRunning=false;
-  if(pomoPhase==="focus"){
-    pomoBlocks++;
-    const lb=pomoBlocks%4===0;
-    pomoPhase="break";
-    const dur=lb?20:Number(document.getElementById("pomoBreakDur").value)||5;
-    pomoTotal=dur*60;pomoRemain=pomoTotal;
-    alert(lb?"🎉 4 blocos! Pausa de 20 min.":"✅ Bloco concluído!");
-  }else{
-    pomoBreaks++;pomoPhase="focus";
-    const dur=Number(document.getElementById("pomoDur").value)||25;
-    pomoTotal=dur*60;pomoRemain=pomoTotal;
-    alert("☕ Pausa finalizada. Próximo bloco?");
-  }
-  renderPomo();
+.time-block:hover { transform: translateX(2px); }
+.time-block.type-home    { border-left-color: var(--orange); }
+.time-block.type-class   { border-left-color: var(--accent); }
+.time-block.type-study   { border-left-color: var(--cyan); }
+.time-block.type-sport   { border-left-color: var(--green); }
+.time-block.type-leisure { border-left-color: var(--yellow); }
+.time-block.type-exam    { border-left-color: var(--red); }
+.time-block.done { opacity: 0.45; text-decoration: line-through; }
+
+.block-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+.block-meta { font-size: 0.78rem; color: var(--text-secondary); }
+.block-actions { position: absolute; top: 8px; right: 10px; display: flex; gap: 6px; }
+.btn-done, .btn-edit-block, .btn-del-block {
+  background: none;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  padding: 2px 5px;
+  border-radius: 4px;
+  transition: color var(--transition), background var(--transition);
 }
-document.getElementById("pomoStart").addEventListener("click",()=>{
-  if(pomoRunning)return;
-  pomoRunning=true;pomoInterval=setInterval(tickPomo,1000);renderPomo();
-});
-document.getElementById("pomoPause").addEventListener("click",()=>{
-  clearInterval(pomoInterval);pomoRunning=false;
-});
-document.getElementById("pomoReset").addEventListener("click",()=>{
-  clearInterval(pomoInterval);pomoRunning=false;pomoPhase="focus";
-  pomoBlocks=0;pomoBreaks=0;
-  const dur=Number(document.getElementById("pomoDur").value)||25;
-  pomoTotal=dur*60;pomoRemain=pomoTotal;renderPomo();
-});
-/* PROVAS / PLANO DE ESTUDO */
-const examForm=document.getElementById("examForm");
-const examList=document.getElementById("examList");
-const examListEmpty=document.getElementById("examListEmpty");
-const studyList=document.getElementById("studyList");
-const studyHint=document.getElementById("studyHint");
+.btn-done:hover    { color: var(--green); background: rgba(74,222,128,0.1); }
+.btn-edit-block:hover { color: var(--accent-light); background: var(--accent-glow); }
+.btn-del-block:hover  { color: var(--red); background: rgba(248,113,113,0.1); }
 
-examForm.addEventListener("submit",e=>{
-  e.preventDefault();
-  const name=document.getElementById("examName").value.trim();
-  const dateStr=document.getElementById("examDate").value;
-  const topics=Number(document.getElementById("totalTopics").value)||10;
-  const days=Number(document.getElementById("daysBefore").value)||7;
-  const desc=document.getElementById("examTopics").value.trim();
-  const diff=document.getElementById("examDiff").value;
-  const meth=document.getElementById("examMethod").value;
-  if(!name||!dateStr)return;
-  const date=new Date(dateStr+"T12:00:00");
-  const today=new Date();today.setHours(0,0,0,0);
-  if(date<today){alert("Data já passou.");return;}
-  const topicsList=desc?desc.split(",").map(t=>t.trim()).filter(Boolean):[];
-  exams.push({id:Date.now(),name,date,dateStr,topics,days,topicsList,diff,meth});
-  saveExams();
-  examForm.reset();
-  document.getElementById("totalTopics").value=10;
-  document.getElementById("daysBefore").value=7;
-  document.getElementById("examDiff").value="médio";
-  renderExams();buildStudyPlan();
-});
+/* ===== PROGRESS RING ===== */
+.progress-row {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+}
+.progress-circle {
+  position: relative;
+  width: 68px; height: 68px; flex-shrink: 0;
+}
+.progress-circle svg { transform: rotate(-90deg); }
+.progress-circle .track { fill: none; stroke: var(--bg-hover); stroke-width: 6; }
+.progress-circle .fill  {
+  fill: none; stroke: var(--accent); stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+.progress-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 700; color: var(--accent-light);
+}
+.progress-info { flex: 1; }
+.progress-info strong { display: block; font-size: 1rem; margin-bottom: 2px; }
+.progress-info span { font-size: 0.82rem; color: var(--text-secondary); }
 
-function renderExams(){
-  examList.innerHTML="";
-  if(!exams.length){examListEmpty.style.display="block";return;}
-  examListEmpty.style.display="none";
-  exams.sort((a,b)=>a.date-b.date);
-  const today=new Date();today.setHours(0,0,0,0);
+/* ===== GRADE DE SEMANA ===== */
+.week-grid {
+  display: grid;
+  grid-template-columns: 70px repeat(5, 1fr);
+  gap: 2px;
+  font-size: 0.78rem;
+  overflow-x: auto;
+}
+.week-header {
+  background: var(--bg-hover);
+  padding: 10px 6px;
+  text-align: center;
+  font-weight: 600;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.week-header.today { color: var(--accent-light); border-bottom: 2px solid var(--accent); }
+.week-time { padding: 8px 6px; text-align: right; color: var(--text-muted); font-size: 0.72rem; }
+.week-cell {
+  min-height: 42px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.week-event {
+  background: var(--accent-glow);
+  border-left: 2px solid var(--accent);
+  border-radius: 3px;
+  padding: 2px 5px;
+  font-size: 0.7rem;
+  color: var(--accent-light);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.week-event.ev-home    { background: rgba(251,146,60,0.12); border-color: var(--orange); color: var(--orange); }
+.week-event.ev-sport   { background: rgba(74,222,128,0.12); border-color: var(--green); color: var(--green); }
+.week-event.ev-study   { background: rgba(34,211,238,0.12); border-color: var(--cyan); color: var(--cyan); }
+.week-event.ev-exam    { background: rgba(248,113,113,0.12); border-color: var(--red); color: var(--red); }
+.week-event.ev-leisure { background: rgba(250,204,21,0.12); border-color: var(--yellow); color: var(--yellow); }
 
-  exams.forEach(ex=>{
-    const diffDays=Math.round((ex.date-today)/86400000);
-    const tpd=(ex.topics/Math.max(1,ex.days)).toFixed(1).replace(".0","");
-    const card=document.createElement("div");card.className="exam-card";
-    card.innerHTML=`
-      <div class="exam-name-display">${ex.name}</div>
-      <div class="exam-meta">📅 ${ex.date.toLocaleDateString("pt-BR")} · ${diffDays>0?"em "+diffDays+" dia(s)":"hoje"} · ${ex.topics} tópicos</div>
-      <div class="exam-meta">🎯 Dif.: ${ex.diff} · Método: ${methodLabel(ex.meth)}</div>
-      ${ex.topicsList.length?`<div class="exam-meta" style="color:#c4b5fd;margin-top:3px;">📋 ${ex.topicsList.join(" · ")}</div>`:""}
-      <div class="exam-badges">
-        <span class="exam-badge">${diffDays<=ex.days?"Intensivo":"Distribuído"}</span>
-        <span class="exam-load">~${tpd} tóp./dia</span>
-      </div>
-      <div class="exam-edit-section">
-        <div class="r1"><label>Nome</label><input type="text" class="ee-name" value="${ex.name}"></div>
-        <div class="r2">
-          <div><label>Data</label><input type="date" class="ee-date" value="${ex.dateStr}"></div>
-          <div><label>Dias</label><input type="number" class="ee-days" min="1" max="30" value="${ex.days}"></div>
-        </div>
-        <div class="r2">
-          <div><label>Nº tópicos</label><input type="number" class="ee-topics" min="1" max="99" value="${ex.topics}"></div>
-          <div>
-            <label>Dificuldade</label>
-            <select class="ee-diff">
-              <option value="baixa"${ex.diff==="baixa"?" selected":""}>Baixa</option>
-              <option value="médio"${ex.diff==="médio"?" selected":""}>Médio</option>
-              <option value="alta"${ex.diff==="alta"?" selected":""}>Alta</option>
-            </select>
-          </div>
-        </div>
-        <div class="r1">
-          <label>Conteúdos (vírgulas)</label>
-          <textarea class="ee-topicsList">${ex.topicsList.join(", ")}</textarea>
-        </div>
-        <div class="r1">
-          <label>Método</label>
-          <select class="ee-method">
-            <option value="pomodoro"${ex.meth==="pomodoro"?" selected":""}>Pomodoro</option>
-            <option value="flashcards"${ex.meth==="flashcards"?" selected":""}>Flashcards</option>
-            <option value="mapas"${ex.meth==="mapas"?" selected":""}>Mapas mentais</option>
-            <option value="ensinar"${ex.meth==="ensinar"?" selected":""}>Ensinar em voz alta</option>
-          </select>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-          <button type="button" class="btn btn-primary btn-sm ee-save">Salvar</button>
-          <button type="button" class="btn btn-danger btn-sm ee-del">Remover</button>
-        </div>
-      </div>
-    `;
-    examList.appendChild(card);
+/* ===== BADGES / CHIPS ===== */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.badge-green  { background: rgba(74,222,128,0.15); color: var(--green); }
+.badge-yellow { background: rgba(250,204,21,0.15); color: var(--yellow); }
+.badge-red    { background: rgba(248,113,113,0.15); color: var(--red); }
+.badge-accent { background: var(--accent-glow); color: var(--accent-light); }
+.badge-cyan   { background: rgba(34,211,238,0.12); color: var(--cyan); }
+.badge-orange { background: rgba(251,146,60,0.12); color: var(--orange); }
 
-    card.querySelector(".ee-del").addEventListener("click",()=>{
-      exams=exams.filter(e=>e.id!==ex.id);saveExams();renderExams();buildStudyPlan();
-    });
-    card.querySelector(".ee-save").addEventListener("click",()=>{
-      const nameI=card.querySelector(".ee-name").value.trim();
-      const dateI=card.querySelector(".ee-date").value;
-      const daysI=Number(card.querySelector(".ee-days").value)||1;
-      const topicsI=Number(card.querySelector(".ee-topics").value)||1;
-      const diffI=card.querySelector(".ee-diff").value;
-      const methI=card.querySelector(".ee-method").value;
-      const topicsStr=card.querySelector(".ee-topicsList").value.trim();
-      if(!nameI||!dateI){alert("Nome e data obrigatórios.");return;}
-      const d=new Date(dateI+"T12:00:00");
-      const today=new Date();today.setHours(0,0,0,0);
-      if(d<today){alert("Data já passou.");return;}
-      ex.name=nameI;ex.date=d;ex.dateStr=dateI;ex.days=daysI;ex.topics=topicsI;ex.diff=diffI;ex.meth=methI;
-      ex.topicsList=topicsStr?topicsStr.split(",").map(t=>t.trim()).filter(Boolean):[];
-      saveExams();renderExams();buildStudyPlan();
-    });
-  });
+/* ===== EXAM CARDS ===== */
+.exam-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  display: flex; align-items: flex-start; gap: 14px;
+  transition: border-color var(--transition);
+}
+.exam-card:hover { border-color: var(--border-light); }
+.exam-card.urgent { border-left: 3px solid var(--red); }
+.exam-card.soon   { border-left: 3px solid var(--yellow); }
+.exam-card.ok     { border-left: 3px solid var(--green); }
+.exam-icon { font-size: 1.8rem; }
+.exam-info { flex: 1; }
+.exam-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+.exam-meta  { font-size: 0.78rem; color: var(--text-secondary); display: flex; gap: 10px; flex-wrap: wrap; }
+.exam-topics { margin-top: 8px; }
+.topic-tag {
+  display: inline-block;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-light);
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin: 2px 3px 2px 0;
+}
+.exam-actions { display: flex; gap: 8px; align-items: flex-start; }
+.btn-icon {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  transition: all var(--transition);
+}
+.btn-icon:hover { background: var(--accent-glow); color: var(--accent-light); }
+.btn-icon.danger:hover { background: rgba(248,113,113,0.12); color: var(--red); }
+
+/* ===== STUDY PLAN ===== */
+.study-subject-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.study-subject-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  background: var(--bg-hover);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.study-subject-header:hover { background: var(--bg-card); }
+.study-subject-body { padding: 14px 18px; display: none; }
+.study-subject-body.open { display: block; }
+.study-day {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+.study-day:last-child { border-bottom: none; }
+.study-day-label { width: 100px; color: var(--text-secondary); font-size: 0.82rem; }
+.study-day-content { flex: 1; }
+.study-day-method {
+  font-size: 0.72rem; color: var(--accent-light);
+  background: var(--accent-glow);
+  padding: 2px 8px; border-radius: 99px;
+  margin-left: 8px;
 }
 
-/* PLANO DE ESTUDO */
-function buildStudyPlan(){
-  studyPlanMap={};
-  studyList.innerHTML="";
-  if(!exams.length){
-    studyHint.className="alert alert-info";
-    studyHint.textContent="Cadastre pelo menos uma prova.";
-    buildRoutine(currentDay);return;
-  }
-  studyHint.className="alert alert-info";
-  studyHint.textContent="Veja o que estudar por dia. Janelas de estudo na aba Rotina.";
-
-  const today=new Date();today.setHours(0,0,0,0);
-
-  exams.forEach(ex=>{
-    const topicList=ex.topicsList.length
-      ? ex.topicsList.slice(0,ex.topics)
-      : Array.from({length:ex.topics},(_,i)=>"Tópico "+(i+1));
-    const start=addDays(ex.date,-ex.days);start.setHours(0,0,0,0);
-    let cur=new Date(start<today?today:start);
-    const daysArr=[];
-    while(cur<=ex.date){
-      daysArr.push(isoDate(cur));
-      cur=addDays(cur,1);
-    }
-    if(!daysArr.length)return;
-    const perDay=Math.ceil(topicList.length/daysArr.length);
-    let idx=0;
-    daysArr.forEach(iso=>{
-      if(idx>=topicList.length)return;
-      const slice=topicList.slice(idx,idx+perDay);
-      idx+=perDay;
-      if(!studyPlanMap[iso])studyPlanMap[iso]=[];
-      studyPlanMap[iso].push({examName:ex.name,method:ex.meth,diff:ex.diff,topics:slice});
-    });
-  });
-
-  const days=Object.keys(studyPlanMap).sort();
-  if(!days.length){
-    studyHint.className="alert alert-warn";
-    studyHint.textContent="Não foi possível distribuir os tópicos.";
-    buildRoutine(currentDay);return;
-  }
-
-  days.forEach(iso=>{
-    const d=new Date(iso+"T12:00:00");
-    const dow=d.getDay();
-    const isToday=iso===isoDate(new Date());
-    const item=document.createElement("div");item.className="study-item";
-    const head=document.createElement("div");head.className="study-date";
-    head.textContent=DAY_NAMES[dow]+" · "+d.toLocaleDateString("pt-BR")+(isToday?" 📌 hoje":"");
-    item.appendChild(head);
-
-    (studyPlanMap[iso]||[]).forEach(entry=>{
-      const name=document.createElement("div");
-      name.style.marginTop="3px";
-      name.innerHTML="<strong>"+entry.examName+"</strong> · Dif.: "+entry.diff;
-      item.appendChild(name);
-      const ul=document.createElement("ul");ul.className="study-topics-ul";
-      entry.topics.forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.appendChild(li);});
-      item.appendChild(ul);
-      const pill=document.createElement("span");pill.className="study-method-pill";
-      pill.textContent="Método: "+methodLabel(entry.method);
-      item.appendChild(pill);
-    });
-
-    const h=document.createElement("div");h.className="hint";h.style.marginTop="4px";
-    h.textContent="Use 3–5 blocos de 25 min para estes tópicos.";
-    item.appendChild(h);
-
-    studyList.appendChild(item);
-  });
-
-  buildRoutine(currentDay);
+/* ===== TDAH METHODS ===== */
+.method-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  display: flex; gap: 14px; align-items: flex-start;
+  cursor: pointer;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.method-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.method-card.selected { border-color: var(--accent); background: var(--accent-glow); }
+.method-icon { font-size: 2rem; }
+.method-info h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.method-info p  { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+.method-timer-bar {
+  margin-top: 12px; height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.method-timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  border-radius: 99px;
+  width: 0%;
+  transition: width 1s linear;
 }
 
-/* INIT */
-buildStudyPlan();   // monta o studyPlanMap
-renderExams();     // mostra provas cadastradas
-renderPomo();      // pomodoro inicial
-buildRoutine(currentDay); // rotina inicial (Segunda)
+/* ===== POMODORO WIDGET ===== */
+.pomodoro-widget {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  text-align: center;
+  max-width: 340px;
+  margin: 0 auto 20px;
+}
+.pomodoro-time {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  letter-spacing: 0.05em;
+  margin: 12px 0;
+}
+.pomodoro-label { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; }
+.pomodoro-controls { display: flex; justify-content: center; gap: 12px; }
+.btn-pomo {
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: all var(--transition);
+}
+.btn-pomo.start { background: var(--accent); color: #fff; }
+.btn-pomo.start:hover { opacity: 0.85; }
+.btn-pomo.pause { background: var(--bg-hover); color: var(--text-primary); }
+.btn-pomo.pause:hover { background: var(--border-light); }
+.btn-pomo.reset { background: none; color: var(--text-secondary); }
+.btn-pomo.reset:hover { color: var(--red); }
 
-</script>
-</body>
-</html>
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  width: 90%;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.25s ease;
+}
+.modal-sm { max-width: 380px; }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 1rem; font-weight: 600; }
+.modal-close {
+  background: none; font-size: 1.4rem; color: var(--text-secondary);
+  transition: color var(--transition);
+}
+.modal-close:hover { color: var(--red); }
+
+.modal-body {
+  padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.modal-body label { font-size: 0.82rem; color: var(--text-secondary); font-weight: 500; margin-bottom: -8px; }
+
+.modal-footer {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 16px 22px;
+  border-top: 1px solid var(--border);
+}
+.btn-save {
+  background: var(--accent); color: #fff;
+  padding: 10px 22px; border-radius: var(--radius-sm);
+  font-weight: 600; font-size: 0.9rem;
+  transition: opacity var(--transition);
+}
+.btn-save:hover { opacity: 0.85; }
+.btn-cancel {
+  background: var(--bg-hover); color: var(--text-secondary);
+  padding: 10px 18px; border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  transition: all var(--transition);
+}
+.btn-cancel:hover { color: var(--text-primary); }
+
+/* Topics no modal */
+.topic-row { display: flex; gap: 8px; margin-bottom: 6px; }
+.topic-row input { flex: 1; }
+.btn-add-topic {
+  background: var(--bg-hover); color: var(--accent-light);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  width: 38px; height: 38px;
+  font-size: 1.2rem; flex-shrink: 0;
+  transition: all var(--transition);
+}
+.btn-add-topic:hover { background: var(--accent-glow); }
+
+/* Conflict modal */
+.conflict-options { display: flex; flex-direction: column; gap: 10px; }
+.btn-conflict {
+  padding: 12px 16px;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+.btn-conflict:hover { border-color: var(--accent); color: var(--accent-light); }
+.btn-conflict.btn-cancel:hover { border-color: var(--red); color: var(--red); }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 13px 20px;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 300;
+  max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.warning { border-left: 3px solid var(--yellow); }
+.toast.info    { border-left: 3px solid var(--accent); }
+
+/* ===== STATS ROW ===== */
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+.stat-number { font-size: 1.8rem; font-weight: 700; color: var(--accent-light); }
+.stat-label  { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center; padding: 48px 20px; color: var(--text-secondary);
+}
+.empty-state .empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-state p { font-size: 0.9rem; }
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.section-header h1 { font-size: 1.3rem; font-weight: 700; }
+.section-header p  { font-size: 0.82rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* ===== CHECKBOX CUSTOM ===== */
+.custom-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.custom-checkbox input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+
+/* ===== DAY NAVIGATOR ===== */
+.day-nav {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+}
+.btn-day-nav {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  transition: all var(--transition);
+}
+.btn-day-nav:hover { border-color: var(--accent); color: var(--accent-light); }
+.day-nav-date {
+  flex: 1; text-align: center;
+  font-weight: 600; font-size: 0.95rem;
+}
+.btn-today {
+  background: var(--accent-glow);
+  border: 1px solid var(--accent);
+  color: var(--accent-light);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  .sidebar.open { transform: translateX(0); }
+  .main-content { margin-left: 0; }
+  .btn-menu-mobile { display: flex; }
+  .topbar { padding: 0 16px; }
+  .section { padding: 20px 16px; }
+  .week-grid { min-width: 520px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .topbar-actions { gap: 8px; }
+  .btn-add-task { padding: 8px 12px; font-size: 0.82rem; }
+  .current-date { display: none; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
