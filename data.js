@@ -36,27 +36,24 @@ function formatTimeHM(date) {
   });
 }
 
-// converte "08:00" em minutos (480)
 function timeStrToMinutes(t) {
   if (!t) return null;
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
 }
 
-// converte minutos em "08:00"
 function minutesToTimeStr(mins) {
   const h = String(Math.floor(mins / 60)).padStart(2, "0");
   const m = String(mins % 60).padStart(2, "0");
   return `${h}:${m}`;
 }
 
-// retorna se duas faixas de horário se sobrepõem
 function isTimeOverlap(startA, endA, startB, endB) {
   if (endA == null || endB == null) return false;
   return startA < endB && startB < endA;
 }
 
-// --------- LOCAL STORAGE (offline primeiro, depois Sheets) ---------
+// --------- LOCAL STORAGE ---------
 
 function loadFromStorage(key, defaultValue) {
   try {
@@ -77,60 +74,48 @@ function saveToStorage(key, value) {
   }
 }
 
-// --------- TAREFAS EM MEMÓRIA ---------
+// --------- ARRAYS EM MEMÓRIA ---------
 
-let tasks = loadFromStorage(STORAGE_KEYS.TASKS, []); // todas as tarefas
-let exams = loadFromStorage(STORAGE_KEYS.EXAMS, []); // todas as provas/trabalhos
+let tasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
+let exams = loadFromStorage(STORAGE_KEYS.EXAMS, []);
 
 // Estrutura de task:
 // {
-//   id: string,
-//   title: string,
-//   date: "YYYY-MM-DD",
-//   start: "HH:MM",
-//   end: "HH:MM" | null,
-//   category: "home" | "study" | "leisure" | "sport" | "other" | "class" | "exam",
-//   priority: "low" | "medium" | "high",
-//   notes: string,
-//   done: boolean,
-//   source: "user" | "auto:house" | "auto:tenis" | "auto:class" | "auto:exam"
+//   id, title, date, start, end, category, priority, notes, done, source
 // }
 
 // Estrutura de exam:
-// {
-//   id: string,
-//   subject: string,
-//   type: "prova"|"trabalho"|...,
-//   date: "YYYY-MM-DD",
-//   time: "HH:MM" | null,
-//   topics: string[],
-//   weight: number | null,
-//   notes: string
-// }
+// { id, subject, type, date, time, topics, weight, notes }
 
-// --------- ROTINA DOMÉSTICA PADRÃO ---------
-// Aqui você pode ajustar como preferir. Coloquei um modelo bem objetivo.
+// --------- ROTINA DOMÉSTICA ---------
+// Mais detalhes, distribuídos pela semana. As tarefas diárias são sempre geradas.
+// As semanais entram só em dias específicos.
 
-const DEFAULT_HOUSE_ROUTINE = [
+const DAILY_HOUSE_ROUTINE = [
   {
     label: "Arrumar a cama",
     start: "07:00",
     end: "07:10",
   },
   {
-    label: "Café da manhã",
+    label: "Higiene pessoal / se arrumar",
     start: "07:10",
-    end: "07:40",
+    end: "07:25",
+  },
+  {
+    label: "Café da manhã",
+    start: "07:25",
+    end: "07:45",
   },
   {
     label: "Lavar a louça do café",
-    start: "07:40",
-    end: "07:55",
+    start: "07:45",
+    end: "08:00",
   },
   {
-    label: "Varrer o chão (área principal)",
-    start: "17:30",
-    end: "17:50",
+    label: "Organizar escrivaninha / espaço de estudo",
+    start: "13:00",
+    end: "13:10",
   },
   {
     label: "Organizar materiais de estudo do dia seguinte",
@@ -139,56 +124,119 @@ const DEFAULT_HOUSE_ROUTINE = [
   },
 ];
 
-// Você vai poder alterar/duplicar esses horários depois, mas isso já cria um padrão diário.
+// Tarefas semanais (dia-da-semana específico)
+const WEEKLY_HOUSE_ROUTINE = [
+  // Segunda
+  {
+    weekday: 1,
+    label: "Lavar roupas (claras/coloridas)",
+    start: "17:00",
+    end: "18:00",
+  },
+  {
+    weekday: 1,
+    label: "Dobrar/guardar roupas limpas",
+    start: "21:15",
+    end: "21:35",
+  },
+  // Terça
+  {
+    weekday: 2,
+    label: "Limpar banheiro (pia, vaso, piso)",
+    start: "11:00",
+    end: "11:40",
+  },
+  // Quarta
+  {
+    weekday: 3,
+    label: "Passar pano nos principais cômodos",
+    start: "17:30",
+    end: "18:00",
+  },
+  // Quinta
+  {
+    weekday: 4,
+    label: "Lavar roupas (escura/toalhas)",
+    start: "09:00",
+    end: "10:00",
+  },
+  {
+    weekday: 4,
+    label: "Trocar roupa de cama",
+    start: "10:00",
+    end: "10:20",
+  },
+  // Sexta
+  {
+    weekday: 5,
+    label: "Organização geral da casa (30 min concentrados)",
+    start: "17:00",
+    end: "17:30",
+  },
+  // Sábado
+  {
+    weekday: 6,
+    label: "Varrer e organizar casa (faxininha leve)",
+    start: "09:00",
+    end: "09:40",
+  },
+];
 
-// --------- TÊNIS DE MESA (segunda, quarta, sexta das 08:00 às 11:00) ---------
+// --------- TÊNIS DE MESA ---------
 
-const TENIS_DAYS = [1, 3, 5]; // 1 = segunda, 3 = quarta, 5 = sexta
-
+const TENIS_DAYS = [1, 3, 5]; // segunda, quarta, sexta
 const TENIS_CONFIG = {
   name: "Tênis de Mesa",
   start: "08:00",
   end: "11:00",
 };
 
-// --------- HORÁRIOS DE AULAS (com base no PDF enviado) ---------
-// OBS: aqui é só a estrutura geral; a Parte 3 vai gerar as tasks automáticas.
+// --------- HORÁRIOS DE AULA (do PDF) ---------
+// dayIndex: 1=segunda, 2=terça, 3=quarta, 4=quinta, 5=sexta
 
 const CLASSES_SCHEDULE = [
-  // Segunda
+  // SEGUNDA
   { dayIndex: 1, start: "15:20", end: "16:00", subject: "Anatomia Patológica Vet II", type: "teórica" },
   { dayIndex: 1, start: "16:00", end: "16:40", subject: "Anatomia Patológica Vet II", type: "teórica" },
 
-  // Terça
+  // TERÇA
   { dayIndex: 2, start: "13:30", end: "14:10", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 2, start: "14:10", end: "15:20", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 2, start: "15:20", end: "16:00", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 2, start: "16:00", end: "16:40", subject: "Clínica de Pequenos - Prática", type: "prática" },
+
   { dayIndex: 2, start: "18:40", end: "19:20", subject: "Clínica de Pequenos Animais", type: "teórica" },
   { dayIndex: 2, start: "19:20", end: "20:30", subject: "Clínica de Pequenos Animais", type: "teórica" },
+
   { dayIndex: 2, start: "20:30", end: "21:10", subject: "Diagnóstico por Imagem", type: "teórica" },
   { dayIndex: 2, start: "21:10", end: "21:50", subject: "Diagnóstico por Imagem", type: "teórica" },
 
-  // Quarta
+  // QUARTA
   { dayIndex: 3, start: "08:30", end: "09:10", subject: "Anestesiologia - Prática", type: "prática" },
   { dayIndex: 3, start: "09:10", end: "10:20", subject: "Anestesiologia - Prática", type: "prática" },
+
   { dayIndex: 3, start: "10:20", end: "11:00", subject: "Técnica Cirúrgica - Prática", type: "prática" },
   { dayIndex: 3, start: "11:00", end: "11:40", subject: "Técnica Cirúrgica - Prática", type: "prática" },
+
   { dayIndex: 3, start: "18:40", end: "19:20", subject: "Anatomia Patológica Vet II", type: "teórica" },
   { dayIndex: 3, start: "19:20", end: "20:30", subject: "Anatomia Patológica Vet II", type: "teórica" },
+
   { dayIndex: 3, start: "20:30", end: "21:10", subject: "Anestesiologia", type: "teórica" },
   { dayIndex: 3, start: "21:10", end: "21:50", subject: "Anestesiologia", type: "teórica" },
 
-  // Quinta
+  // QUINTA
   { dayIndex: 4, start: "10:20", end: "11:00", subject: "Técnica Cirúrgica - Prática", type: "prática" },
   { dayIndex: 4, start: "11:00", end: "11:40", subject: "Técnica Cirúrgica - Prática", type: "prática" },
+
   { dayIndex: 4, start: "18:40", end: "19:20", subject: "Clínica de Pequenos Animais", type: "teórica" },
   { dayIndex: 4, start: "19:20", end: "20:30", subject: "Clínica de Pequenos Animais", type: "teórica" },
   { dayIndex: 4, start: "20:30", end: "21:10", subject: "Clínica de Pequenos Animais", type: "teórica" },
   { dayIndex: 4, start: "21:10", end: "21:50", subject: "Clínica de Pequenos Animais", type: "teórica" },
+
+  // (Sexta não tem aula no horário, só tênis de mesa e o que você acrescentar)
 ];
 
-// --------- FUNÇÕES PARA CRIAR IDs ---------
+// --------- GERADOR DE ID ---------
 
 function uuid() {
   return "id-" + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
@@ -196,27 +244,44 @@ function uuid() {
 
 // --------- TAREFAS FIXAS (ROTINA + TÊNIS + AULAS) ---------
 
-// gera tarefas de rotina da casa para um dia específico
-function generateHouseTasksForDate(dateStr) {
-  const tasksForDay = [];
-  DEFAULT_HOUSE_ROUTINE.forEach((item) => {
-    tasksForDay.push({
+// tarefas diárias da casa
+function generateDailyHouseTasks(dateStr) {
+  return DAILY_HOUSE_ROUTINE.map((item) => ({
+    id: uuid(),
+    title: item.label,
+    date: dateStr,
+    start: item.start,
+    end: item.end,
+    category: "home",
+    priority: "low",
+    notes: "",
+    done: false,
+    source: "auto:house",
+  }));
+}
+
+// tarefas semanais da casa
+function generateWeeklyHouseTasks(dateStr) {
+  const d = new Date(dateStr);
+  const weekday = d.getDay(); // 0=domingo...6=sábado
+
+  return WEEKLY_HOUSE_ROUTINE
+    .filter((item) => item.weekday === weekday)
+    .map((item) => ({
       id: uuid(),
       title: item.label,
       date: dateStr,
       start: item.start,
       end: item.end,
       category: "home",
-      priority: "low",
+      priority: "medium",
       notes: "",
       done: false,
       source: "auto:house",
-    });
-  });
-  return tasksForDay;
+    }));
 }
 
-// gera tarefa de tênis de mesa se o dia for segunda, quarta ou sexta
+// tarefas de tênis
 function generateTenisForDate(dateStr) {
   const d = new Date(dateStr);
   const dayIndex = d.getDay();
@@ -237,4 +302,4 @@ function generateTenisForDate(dateStr) {
   ];
 }
 
-// (As aulas automáticas virão na Parte 3 em classes.js)
+// As aulas automáticas são geradas em classes.js (Parte 3)
