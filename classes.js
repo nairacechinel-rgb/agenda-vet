@@ -1,144 +1,184 @@
 // ===============================
-// classes.js
-// Geração automática das aulas e visão de horários
+// classes.js — Aulas automáticas + tela de aulas
 // ===============================
 
-// Cria tarefas de aula para uma data específica, com base em CLASSES_SCHEDULE
+// ── agrupa horários contíguos da mesma disciplina em um único bloco ──
+function mergeClassBlocks(list) {
+  if (!list.length) return [];
+  const sorted = [...list].sort((a,b) =>
+    timeStrToMinutes(a.start) - timeStrToMinutes(b.start));
+  const merged = [];
+  let current = { ...sorted[0] };
+  for (let i = 1; i < sorted.length; i++) {
+    const c = sorted[i];
+    // mesmo subject E horário colado (end do atual === start do próximo)
+    if (c.subject === current.subject && c.start === current.end) {
+      current.end = c.end; // estende o bloco
+    } else {
+      merged.push(current);
+      current = { ...c };
+    }
+  }
+  merged.push(current);
+  return merged;
+}
+
+// ── gera tasks de aula para uma data ──
 function generateClassTasksForDate(dateStr) {
-  const d = new Date(dateStr);
-  const dayIndex = d.getDay(); // 1=segunda ...
+  const dayIndex = new Date(dateStr).getDay();
+  const list = CLASSES_SCHEDULE.filter(c => c.dayIndex === dayIndex);
+  const merged = mergeClassBlocks(list);
 
-  const classesToday = CLASSES_SCHEDULE.filter((c) => c.dayIndex === dayIndex);
-
-  return classesToday.map((c) => ({
+  return merged.map(c => ({
     id: uuid(),
-    title: c.subject,
+    title: c.type === "prática" ? `${c.subject} · Prática` : c.subject,
     date: dateStr,
     start: c.start,
     end: c.end,
     category: "class",
-    priority: "medium",
-    notes: c.type === "prática" ? "Aula prática" : "Aula teórica",
+    priority: "high",
+    notes: c.type === "prática"
+      ? "Aula prática — leve jaleco/material"
+      : "Aula teórica — revisar depois",
     done: false,
     source: "auto:class",
   }));
 }
 
-// ------------- VISUALIZAÇÃO DE AULAS NA ABA "AULAS" -------------
-
+// ── tela de aulas ─────────────────────────────────────────────
 function renderClassesView() {
   sectionClasses.innerHTML = "";
 
+  // cabeçalho
   const header = document.createElement("div");
   header.className = "section-header";
   header.innerHTML = `
     <div>
       <h1>Agenda de Aulas</h1>
-      <p>Horários fixos da 7ª fase de Medicina Veterinária.</p>
+      <p>7ª fase — Medicina Veterinária · Horários fixos do semestre</p>
     </div>
   `;
   sectionClasses.appendChild(header);
 
-  const card = document.createElement("div");
-  card.className = "card";
-
-  const title = document.createElement("div");
-  title.className = "card-title";
-  title.textContent = "Semana padrão de aulas";
-  card.appendChild(title);
-
-  // Montar uma grade por dia da semana, com as aulas daquele dia
-  const daysMap = {
-    1: "Segunda-feira",
-    2: "Terça-feira",
-    3: "Quarta-feira",
-    4: "Quinta-feira",
-    5: "Sexta-feira",
+  const DAYS_LABEL = {
+    1:"Segunda-feira", 2:"Terça-feira", 3:"Quarta-feira",
+    4:"Quinta-feira",  5:"Sexta-feira",
   };
 
-  Object.entries(daysMap).forEach(([idx, label]) => {
-    const dayIndex = Number(idx);
-    const list = CLASSES_SCHEDULE.filter((c) => c.dayIndex === dayIndex)
-      .sort((a, b) => timeStrToMinutes(a.start) - timeStrToMinutes(b.start));
+  // cores por disciplina
+  const SUBJECT_COLOR = {
+    "Anatomia Patológica Vet II":  "badge-orange",
+    "Clínica de Pequenos Animais": "badge-accent",
+    "Diagnóstico por Imagem":      "badge-cyan",
+    "Anestesiologia":              "badge-green",
+    "Técnica Cirúrgica":           "badge-yellow",
+  };
 
-    const dayBlock = document.createElement("div");
-    dayBlock.style.marginBottom = "18px";
+  // ícone prática x teórica
+  function typeIcon(t) {
+    return t === "prática" ? "🔬" : "📖";
+  }
 
-    const dayHeader = document.createElement("div");
-    dayHeader.style.display = "flex";
-    dayHeader.style.alignItems = "center";
-    dayHeader.style.justifyContent = "space-between";
-    dayHeader.style.marginBottom = "6px";
+  // para cada dia da semana
+  [1,2,3,4,5].forEach(dayIdx => {
+    const dayList = CLASSES_SCHEDULE
+      .filter(c => c.dayIndex === dayIdx)
+      .sort((a,b) => timeStrToMinutes(a.start) - timeStrToMinutes(b.start));
 
-    const labelEl = document.createElement("div");
-    labelEl.style.fontWeight = "600";
-    labelEl.style.fontSize = "0.9rem";
-    labelEl.textContent = label;
+    const merged = mergeClassBlocks(dayList);
 
-    const badge = document.createElement("span");
-    badge.className = "badge badge-accent";
-    badge.textContent = list.length ? `${list.length} blocos de aula` : "Sem aulas";
+    const card = document.createElement("div");
+    card.className = "card";
 
-    dayHeader.appendChild(labelEl);
-    dayHeader.appendChild(badge);
-    dayBlock.appendChild(dayHeader);
+    // título do card
+    const cardTitle = document.createElement("div");
+    cardTitle.className = "card-title";
 
-    if (!list.length) {
+    // verifica se hoje é esse dia
+    const todayIdx = new Date().getDay();
+    const isToday  = todayIdx === dayIdx;
+    cardTitle.innerHTML = `
+      ${DAYS_LABEL[dayIdx]}
+      ${isToday ? '<span class="badge badge-green" style="margin-left:8px">Hoje</span>' : ""}
+    `;
+    card.appendChild(cardTitle);
+
+    if (!merged.length) {
       const p = document.createElement("p");
-      p.style.fontSize = "0.8rem";
-      p.style.color = "#64748b";
-      p.textContent = "Nenhuma aula neste dia.";
-      dayBlock.appendChild(p);
+      p.style.cssText = "font-size:.82rem;color:#64748b";
+      p.textContent = "Sem aulas registradas neste dia.";
+      card.appendChild(p);
     } else {
-      list.forEach((c) => {
+      merged.forEach(c => {
         const line = document.createElement("div");
-        line.style.display = "flex";
-        line.style.alignItems = "center";
-        line.style.fontSize = "0.82rem";
-        line.style.marginBottom = "4px";
+        line.style.cssText = `
+          display:flex;align-items:center;gap:10px;
+          padding:9px 0;border-bottom:1px solid #1f2937;
+          font-size:.86rem;flex-wrap:wrap;
+        `;
 
-        const timeSpan = document.createElement("span");
-        timeSpan.style.minWidth = "90px";
-        timeSpan.style.color = "#9ca3af";
-        timeSpan.textContent = `${c.start} - ${c.end}`;
+        const time = document.createElement("span");
+        time.style.cssText = "min-width:115px;color:#9ca3af;font-size:.8rem;font-variant-numeric:tabular-nums";
+        time.textContent = `${c.start} – ${c.end}`;
 
-        const subjectSpan = document.createElement("span");
-        subjectSpan.textContent = c.subject;
+        // duração em minutos
+        const dur = timeStrToMinutes(c.end) - timeStrToMinutes(c.start);
+        const durSpan = document.createElement("span");
+        durSpan.style.cssText = "font-size:.72rem;color:#4b5563";
+        durSpan.textContent = `(${dur} min)`;
 
-        const typeSpan = document.createElement("span");
-        typeSpan.className = "badge " + (c.type === "prática" ? "badge-cyan" : "badge-accent");
-        typeSpan.style.marginLeft = "8px";
-        typeSpan.textContent = c.type === "prática" ? "Prática" : "Teórica";
+        const icon = document.createElement("span");
+        icon.textContent = typeIcon(c.type);
 
-        line.appendChild(timeSpan);
-        line.appendChild(subjectSpan);
-        line.appendChild(typeSpan);
+        const subj = document.createElement("span");
+        subj.style.flex = "1";
+        subj.textContent = c.subject;
 
-        dayBlock.appendChild(line);
+        const typeBadge = document.createElement("span");
+        const colorClass = SUBJECT_COLOR[c.subject] || "badge-accent";
+        typeBadge.className = `badge ${colorClass}`;
+        typeBadge.textContent = c.type;
+
+        line.appendChild(time);
+        line.appendChild(durSpan);
+        line.appendChild(icon);
+        line.appendChild(subj);
+        line.appendChild(typeBadge);
+        card.appendChild(line);
       });
     }
 
-    const divider = document.createElement("hr");
-    divider.style.border = "none";
-    divider.style.borderTop = "1px solid #1f2937";
-    divider.style.marginTop = "10px";
-
-    card.appendChild(dayBlock);
-    if (dayIndex !== 5) card.appendChild(divider);
+    sectionClasses.appendChild(card);
   });
 
-  sectionClasses.appendChild(card);
+  // resumo de carga horária por disciplina
+  const summaryCard = document.createElement("div");
+  summaryCard.className = "card";
+  const summaryTitle = document.createElement("div");
+  summaryTitle.className = "card-title";
+  summaryTitle.textContent = "Carga horária semanal por disciplina";
+  summaryCard.appendChild(summaryTitle);
 
-  // Pequeno aviso
-  const info = document.createElement("div");
-  info.className = "card";
-  info.innerHTML = `
-    <div class="card-title">Integração com sua rotina</div>
-    <p style="font-size:0.84rem;color:#9ca3af;line-height:1.5">
-      Esses horários são usados automaticamente para montar sua linha do tempo diária.
-      Ou seja, quando você olhar o dia, verá casa, tênis de mesa, aulas e estudos juntos,
-      em uma visão única, para reduzir a sobrecarga de planejamento (o que ajuda muito no TDAH).
-    </p>
-  `;
-  sectionClasses.appendChild(info);
+  const totals = {};
+  CLASSES_SCHEDULE.forEach(c => {
+    const dur = timeStrToMinutes(c.end) - timeStrToMinutes(c.start);
+    totals[c.subject] = (totals[c.subject] || 0) + dur;
+  });
+
+  Object.entries(totals).sort((a,b)=>b[1]-a[1]).forEach(([subj, mins]) => {
+    const h = Math.floor(mins/60);
+    const m = mins%60;
+    const row = document.createElement("div");
+    row.style.cssText = `
+      display:flex;justify-content:space-between;align-items:center;
+      padding:8px 0;border-bottom:1px solid #1f2937;font-size:.85rem;
+    `;
+    row.innerHTML = `
+      <span>${subj}</span>
+      <span class="badge ${SUBJECT_COLOR[subj]||'badge-accent'}">${h}h${m>0?` ${m}min`:""}/sem</span>
+    `;
+    summaryCard.appendChild(row);
+  });
+
+  sectionClasses.appendChild(summaryCard);
 }
