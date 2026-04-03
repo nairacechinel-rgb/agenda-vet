@@ -160,8 +160,8 @@ const CLASSES_SCHEDULE = [
   { dayIndex:4, start:"10:20", end:"11:00", subject:"Técnica Cirúrgica",            type:"prática" },
   { dayIndex:4, start:"11:00", end:"11:40", subject:"Técnica Cirúrgica",            type:"prática" },
 
-  { dayIndex:4, start:"15:20", end:"16:00", subject:"Técnica Cirúrgica",            type:"prática" },
-  { dayIndex:4, start:"16:00", end:"16:40", subject:"Técnica Cirúrgica",            type:"prática" },
+  { dayIndex:4, start:"15:20", end:"16:00", subject:"Técnica Cirúrgica",            type:"teórica" },
+  { dayIndex:4, start:"16:00", end:"16:40", subject:"Técnica Cirúrgica",            type:"teórica" },
 
   { dayIndex:4, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais",  type:"teórica" },
   { dayIndex:4, start:"20:30", end:"21:10", subject:"Clínica de Pequenos Animais",  type:"teórica" },
