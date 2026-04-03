@@ -13,10 +13,13 @@ const STORAGE_KEYS = {
 
 // ─── UTILITÁRIOS DE DATA / HORA ──────────────────────────────
 
-function toDateOnly(date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+function getTasksForDate(date) {
+  const d = toDateOnly(date);
+  const dateStr = d.toISOString().slice(0,10);
+  ensureAutoTasksForDate(dateStr);
+  return tasks
+    .filter(t => t.date === dateStr)
+    .sort(...);
 }
 
 function formatDateBR(date) {
