@@ -1,15 +1,17 @@
 // ===============================
-// sheets.js — Integração com Google Sheets
+// sheets.js — Integração com Google Sheets (versão final)
 // ===============================
 
-// Cole aqui a URL que o Apps Script vai te gerar
-// Exemplo: "https://script.google.com/macros/s/AKfycbx.../exec"
-const SHEETS_API_URL = "";
+// Retorna a URL correta: prioriza o que foi salvo nas configurações,
+// depois o que estiver hardcoded abaixo.
+function getSheetsUrl() {
+  return localStorage.getItem("naira_sheets_url") || "";
+}
 
-// ── SINCRONIZAR (enviar + receber) ────────────────────────────
 async function syncWithSheets() {
-  if (!SHEETS_API_URL) {
-    throw new Error("URL do Apps Script não configurada. Vá em sheets.js e preencha SHEETS_API_URL.");
+  const url = getSheetsUrl();
+  if (!url) {
+    throw new Error("URL do Apps Script não configurada. Vá em Configurações e cole a URL.");
   }
 
   const payload = {
@@ -18,23 +20,17 @@ async function syncWithSheets() {
     exams:  exams,
   };
 
-  const response = await fetch(SHEETS_API_URL, {
+  const response = await fetch(url, {
     method:  "POST",
     headers: { "Content-Type": "text/plain" },
     body:    JSON.stringify(payload),
   });
 
-  if (!response.ok) {
-    throw new Error("Erro HTTP " + response.status);
-  }
+  if (!response.ok) throw new Error("Erro HTTP " + response.status);
 
   const data = await response.json();
+  if (data.status !== "ok") throw new Error(data.message || "Erro na sincronização.");
 
-  if (data.status !== "ok") {
-    throw new Error(data.message || "Erro desconhecido na sincronização.");
-  }
-
-  // Atualiza os dados locais com o que veio da planilha
   if (Array.isArray(data.tasks)) {
     tasks = data.tasks;
     saveToStorage(STORAGE_KEYS.TASKS, tasks);
@@ -47,43 +43,26 @@ async function syncWithSheets() {
   return data;
 }
 
-// ── APENAS ENVIAR (backup) ────────────────────────────────────
 async function pushToSheets() {
-  if (!SHEETS_API_URL) {
-    throw new Error("URL do Apps Script não configurada.");
-  }
+  const url = getSheetsUrl();
+  if (!url) throw new Error("URL não configurada.");
 
-  const payload = {
-    action: "push",
-    tasks:  tasks,
-    exams:  exams,
-  };
-
-  const response = await fetch(SHEETS_API_URL, {
+  const response = await fetch(url, {
     method:  "POST",
     headers: { "Content-Type": "text/plain" },
-    body:    JSON.stringify(payload),
+    body:    JSON.stringify({ action:"push", tasks, exams }),
   });
 
-  if (!response.ok) {
-    throw new Error("Erro HTTP " + response.status);
-  }
-
+  if (!response.ok) throw new Error("Erro HTTP " + response.status);
   return await response.json();
 }
 
-// ── APENAS RECEBER (restaurar da planilha) ────────────────────
 async function pullFromSheets() {
-  if (!SHEETS_API_URL) {
-    throw new Error("URL do Apps Script não configurada.");
-  }
+  const url = getSheetsUrl();
+  if (!url) throw new Error("URL não configurada.");
 
-  const url = SHEETS_API_URL + "?action=pull";
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("Erro HTTP " + response.status);
-  }
+  const response = await fetch(url + "?action=pull");
+  if (!response.ok) throw new Error("Erro HTTP " + response.status);
 
   const data = await response.json();
 
