@@ -104,12 +104,11 @@ navItems.forEach((item) => {
 });
 
 function setActiveSection(sectionKey) {
-  navItems.forEach((el) => el.classList.remove("active"));
-  document
-    .querySelector(`.nav-item[data-section="${sectionKey}"]`)
-    ?.classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(item => {
+    item.classList.toggle("active", item.dataset.section === sectionKey);
+  });
 
-  document.querySelectorAll(".section").forEach((sec) => sec.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
 
   switch (sectionKey) {
     case "dashboard":
@@ -117,36 +116,43 @@ function setActiveSection(sectionKey) {
       topbarTitle.textContent = "Hoje";
       renderDashboard();
       break;
+
     case "week":
       sectionWeek.classList.add("active");
       topbarTitle.textContent = "Semana";
-      renderWeekView();   // ← precisa ser exatamente isso
+      renderWeekView(); // ← PRECISA chamar essa função
       break;
+
     case "classes":
       sectionClasses.classList.add("active");
       topbarTitle.textContent = "Aulas";
       renderClassesView();
       break;
+
     case "exams":
       sectionExams.classList.add("active");
       topbarTitle.textContent = "Provas & Trabalhos";
       renderExamsView();
       break;
+
     case "study":
       sectionStudy.classList.add("active");
       topbarTitle.textContent = "Plano de Estudos";
       renderStudyView();
       break;
+
     case "tasks":
       sectionTasks.classList.add("active");
       topbarTitle.textContent = "Tarefas";
       renderTasksView();
       break;
+
     case "tdah":
       sectionTdah.classList.add("active");
       topbarTitle.textContent = "Métodos TDAH";
       renderTdahView();
       break;
+
     case "settings":
       sectionSettings.classList.add("active");
       topbarTitle.textContent = "Configurações";
