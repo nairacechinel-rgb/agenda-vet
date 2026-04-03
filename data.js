@@ -7,7 +7,7 @@ const STORAGE_KEYS = {
   EXAMS: "naira_exams",
 };
 
-// ── UTILITÁRIOS ──────────────────────────────────────────────
+// ── UTILIDADES DE DATA/HORA ─────────────────────
 
 function toDateOnly(date) {
   const d = new Date(date);
@@ -15,7 +15,6 @@ function toDateOnly(date) {
   return d;
 }
 
-// Retorna "YYYY-MM-DD" sem problema de fuso horário
 function localDateStr(dateObj) {
   const d = toDateOnly(dateObj);
   const yyyy = d.getFullYear();
@@ -24,7 +23,6 @@ function localDateStr(dateObj) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-// Recebe "YYYY-MM-DD", retorna Date seguro (meio-dia, sem fuso)
 function dateFromStr(str) {
   return new Date(str + "T12:00:00");
 }
@@ -65,7 +63,7 @@ function daysUntil(dateStr) {
   return Math.round((then - now) / 86400000);
 }
 
-// ── LOCAL STORAGE ────────────────────────────────────────────
+// ── LOCAL STORAGE ───────────────────────────────
 
 function loadFromStorage(key, def) {
   try {
@@ -78,12 +76,12 @@ function saveToStorage(key, value) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
 }
 
-// ── ARRAYS GLOBAIS ───────────────────────────────────────────
+// ── ARRAYS GLOBAIS ─────────────────────────────
 
 let tasks = loadFromStorage(STORAGE_KEYS.TASKS, []);
 let exams = loadFromStorage(STORAGE_KEYS.EXAMS, []);
 
-// ── ROTINA DIÁRIA DE CASA ────────────────────────────────────
+// ── ROTINA DE CASA ─────────────────────────────
 
 const DAILY_HOUSE = [
   { label:"Arrumar a cama",                           start:"07:00", end:"07:10" },
@@ -93,9 +91,6 @@ const DAILY_HOUSE = [
   { label:"Organizar escrivaninha / espaço de estudo", start:"13:00", end:"13:10" },
   { label:"Organizar materiais para o dia seguinte",   start:"22:00", end:"22:15" },
 ];
-
-// ── ROTINA SEMANAL DE CASA ───────────────────────────────────
-// weekday: 0=dom,1=seg,2=ter,3=qua,4=qui,5=sex,6=sab
 
 const WEEKLY_HOUSE = [
   { weekday:1, label:"Separar e lavar roupas (claras)",            start:"11:15", end:"11:45" },
@@ -111,151 +106,117 @@ const WEEKLY_HOUSE = [
   { weekday:0, label:"Planejamento semanal (revisar agenda)",      start:"19:00", end:"19:30" },
 ];
 
-// ── LAZER ────────────────────────────────────────────────────
-
 const WEEKLY_LEISURE = [
   { weekday:6, label:"Tempo livre / lazer", start:"15:00", end:"17:00" },
   { weekday:0, label:"Tempo livre / lazer", start:"14:00", end:"16:30" },
 ];
 
-// ── TÊNIS DE MESA ────────────────────────────────────────────
-
-const TENIS_DAYS   = [1, 3, 5];
+// Tênis de mesa: seg, qua, sex (8–11)
+const TENIS_DAYS   = [1,3,5];
 const TENIS_CONFIG = { label:"Tênis de Mesa", start:"08:00", end:"11:00" };
 
-// ── HORÁRIO DE AULAS (PDF CONFIRMADO) ────────────────────────
+// ── HORÁRIO DE AULAS (HORRIO.pdf) ─────────────
 // dayIndex: 1=seg, 2=ter, 3=qua, 4=qui, 5=sex
 
 const CLASSES_SCHEDULE = [
 
-  // SEGUNDA-FEIRA
-  { dayIndex:1, start:"15:20", end:"16:00", subject:"Anatomia Patológica II",        type:"teórica" },
-  { dayIndex:1, start:"16:00", end:"16:40", subject:"Anatomia Patológica II",        type:"teórica" },
-  { dayIndex:1, start:"18:40", end:"19:20", subject:"Clínica de Pequenos Animais",   type:"teórica" },
-  { dayIndex:1, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais",   type:"teórica" },
+  // SEGUNDA
+  { dayIndex:1, start:"15:20", end:"16:00", subject:"Anatomia Patológica II",      type:"teórica" },
+  { dayIndex:1, start:"16:00", end:"16:40", subject:"Anatomia Patológica II",      type:"teórica" },
+  { dayIndex:1, start:"18:40", end:"19:20", subject:"Clínica de Pequenos Animais", type:"teórica" },
+  { dayIndex:1, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais", type:"teórica" },
 
-  // TERÇA-FEIRA
+  // TERÇA
+  { dayIndex:2, start:"13:30", end:"14:10", subject:"Clínica de Pequenos - Prática", type:"prática" },
   { dayIndex:2, start:"18:40", end:"19:20", subject:"Anatomia Patológica Vet II",    type:"teórica" },
   { dayIndex:2, start:"19:20", end:"20:30", subject:"Anatomia Patológica Vet II",    type:"teórica" },
   { dayIndex:2, start:"20:30", end:"21:10", subject:"Diagnóstico por Imagem",        type:"teórica" },
   { dayIndex:2, start:"21:10", end:"21:50", subject:"Diagnóstico por Imagem",        type:"teórica" },
 
-  // QUARTA-FEIRA
-  { dayIndex:3, start:"13:30", end:"14:10", subject:"Clínica de Pequenos - Prática", type:"prática" },
+  // QUARTA
   { dayIndex:3, start:"14:10", end:"15:20", subject:"Clínica de Pequenos - Prática", type:"prática" },
   { dayIndex:3, start:"15:20", end:"16:00", subject:"Clínica de Pequenos - Prática", type:"prática" },
   { dayIndex:3, start:"16:00", end:"16:40", subject:"Clínica de Pequenos - Prática", type:"prática" },
   { dayIndex:3, start:"20:30", end:"21:10", subject:"Anestesiologia",                type:"teórica" },
   { dayIndex:3, start:"21:10", end:"21:50", subject:"Anestesiologia",                type:"teórica" },
 
-  // QUINTA-FEIRA
+  // QUINTA
   { dayIndex:4, start:"08:30", end:"09:10", subject:"Anestesiologia - Prática",      type:"prática" },
   { dayIndex:4, start:"09:10", end:"10:20", subject:"Anestesiologia - Prática",      type:"prática" },
   { dayIndex:4, start:"10:20", end:"11:00", subject:"Técnica Cirúrgica - Prática",   type:"prática" },
   { dayIndex:4, start:"11:00", end:"11:40", subject:"Técnica Cirúrgica - Prática",   type:"prática" },
-  { dayIndex:4, start:"15:20", end:"16:00", subject:"Técnica Cirúrgica",             type:"prática" },
-  { dayIndex:4, start:"16:00", end:"16:40", subject:"Técnica Cirúrgica",             type:"prática" },
+  { dayIndex:4, start:"15:20", end:"16:00", subject:"Técnica Cirúrgica",             type:"teórica" },
+  { dayIndex:4, start:"16:00", end:"16:40", subject:"Técnica Cirúrgica",             type:"teórica" },
   { dayIndex:4, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais",   type:"teórica" },
   { dayIndex:4, start:"20:30", end:"21:10", subject:"Clínica de Pequenos Animais",   type:"teórica" },
   { dayIndex:4, start:"21:10", end:"21:50", subject:"Clínica de Pequenos Animais",   type:"teórica" },
 
-  // SEXTA-FEIRA: sem aulas
+  // SEXTA: vazio
 ];
 
-// ── SLOTS DE ESTUDO POR DIA ──────────────────────────────────
+// ── SLOTS DE ESTUDO ───────────────────────────
 
 const STUDY_SLOTS_BY_DAY = {
-  1: [ // segunda (tênis 08-11, aulas 15:20+)
-    { start:"11:15", end:"11:55" },
-    { start:"13:10", end:"13:50" },
-    { start:"14:00", end:"14:40" },
-  ],
-  2: [ // terça (aulas só à noite)
-    { start:"09:00", end:"09:40" },
-    { start:"09:45", end:"10:25" },
-    { start:"11:00", end:"11:40" },
-    { start:"13:10", end:"13:50" },
-  ],
-  3: [ // quarta (tênis 08-11, práticas 13-17, aulas noite)
-    { start:"11:15", end:"11:55" },
-    { start:"17:30", end:"18:10" },
-  ],
-  4: [ // quinta (práticas manhã, TC tarde, aulas noite)
-    { start:"12:00", end:"12:40" },
-    { start:"13:00", end:"13:40" },
-  ],
-  5: [ // sexta (tênis 08-11, dia livre)
-    { start:"11:15", end:"11:55" },
-    { start:"13:00", end:"13:40" },
-    { start:"14:00", end:"14:40" },
-    { start:"15:00", end:"15:40" },
-  ],
-  6: [ // sábado
-    { start:"11:00", end:"11:40" },
-    { start:"13:00", end:"13:40" },
-  ],
-  0: [ // domingo
-    { start:"10:00", end:"10:40" },
-  ],
+  1:[{start:"11:15",end:"11:55"},{start:"13:10",end:"13:50"},{start:"14:00",end:"14:40"}],
+  2:[{start:"09:00",end:"09:40"},{start:"09:45",end:"10:25"},{start:"11:00",end:"11:40"}],
+  3:[{start:"11:15",end:"11:55"},{start:"17:30",end:"18:10"}],
+  4:[{start:"12:00",end:"12:40"},{start:"13:00",end:"13:40"}],
+  5:[{start:"11:15",end:"11:55"},{start:"13:00",end:"13:40"},{start:"14:00",end:"14:40"},{start:"15:00",end:"15:40"}],
+  6:[{start:"11:00",end:"11:40"},{start:"13:00",end:"13:40"}],
+  0:[{start:"10:00",end:"10:40"}],
 };
 
-// ── GERADORES DE TAREFAS AUTOMÁTICAS ────────────────────────
+// ── GERADORES DE TAREFAS ──────────────────────
 
 function generateDailyHouseTasks(dateStr) {
-  return DAILY_HOUSE.map(item => ({
-    id: uuid(), title: item.label,
-    date: dateStr, start: item.start, end: item.end,
-    category: "home", priority: "low",
-    notes: "", done: false, source: "auto:house",
+  return DAILY_HOUSE.map(i => ({
+    id: uuid(), title:i.label, date:dateStr,
+    start:i.start, end:i.end, category:"home",
+    priority:"low", notes:"", done:false, source:"auto:house",
   }));
 }
 
 function generateWeeklyHouseTasks(dateStr) {
-  const weekday = dateFromStr(dateStr).getDay();
-  return WEEKLY_HOUSE
-    .filter(i => i.weekday === weekday)
-    .map(item => ({
-      id: uuid(), title: item.label,
-      date: dateStr, start: item.start, end: item.end,
-      category: "home", priority: "medium",
-      notes: "", done: false, source: "auto:house",
-    }));
+  const w = dateFromStr(dateStr).getDay();
+  return WEEKLY_HOUSE.filter(i => i.weekday === w).map(i => ({
+    id: uuid(), title:i.label, date:dateStr,
+    start:i.start, end:i.end, category:"home",
+    priority:"medium", notes:"", done:false, source:"auto:house",
+  }));
 }
 
 function generateLeisureForDate(dateStr) {
-  const weekday = dateFromStr(dateStr).getDay();
-  return WEEKLY_LEISURE
-    .filter(i => i.weekday === weekday)
-    .map(item => ({
-      id: uuid(), title: item.label,
-      date: dateStr, start: item.start, end: item.end,
-      category: "leisure", priority: "low",
-      notes: "", done: false, source: "auto:leisure",
-    }));
+  const w = dateFromStr(dateStr).getDay();
+  return WEEKLY_LEISURE.filter(i => i.weekday === w).map(i => ({
+    id: uuid(), title:i.label, date:dateStr,
+    start:i.start, end:i.end, category:"leisure",
+    priority:"low", notes:"", done:false, source:"auto:leisure",
+  }));
 }
 
 function generateTenisForDate(dateStr) {
-  const weekday = dateFromStr(dateStr).getDay();
-  if (!TENIS_DAYS.includes(weekday)) return [];
+  const w = dateFromStr(dateStr).getDay();
+  if (!TENIS_DAYS.includes(w)) return [];
   return [{
-    id: uuid(), title: TENIS_CONFIG.label,
-    date: dateStr, start: TENIS_CONFIG.start, end: TENIS_CONFIG.end,
-    category: "sport", priority: "medium",
-    notes: "Treino fixo — segunda, quarta e sexta",
-    done: false, source: "auto:tenis",
+    id: uuid(), title:TENIS_CONFIG.label,
+    date:dateStr, start:TENIS_CONFIG.start, end:TENIS_CONFIG.end,
+    category:"sport", priority:"medium",
+    notes:"Treino fixo", done:false, source:"auto:tenis",
   }];
 }
 
 function generateClassTasksForDate(dateStr) {
-  const weekday = dateFromStr(dateStr).getDay();
-  return CLASSES_SCHEDULE
-    .filter(c => c.dayIndex === weekday)
-    .map(c => ({
-      id: uuid(),
-      title: c.subject + (c.type === "prática" ? " (Prática)" : ""),
-      date: dateStr, start: c.start, end: c.end,
-      category: "class", priority: "high",
-      notes: c.type === "prática" ? "Aula prática" : "Aula teórica",
-      done: false, source: "auto:class",
-    }));
+  const w = dateFromStr(dateStr).getDay();
+  return CLASSES_SCHEDULE.filter(c => c.dayIndex === w).map(c => ({
+    id: uuid(),
+    title: c.subject,
+    date: dateStr,
+    start: c.start,
+    end:   c.end,
+    category:"class",
+    priority:"high",
+    notes: c.type === "prática" ? "Aula prática" : "Aula teórica",
+    done:false,
+    source:"auto:class",
+  }));
 }
