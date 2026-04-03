@@ -51,8 +51,6 @@
 
   <!-- MAIN -->
   <main class="main">
-
-    <!-- TOPBAR -->
     <header class="topbar">
       <div id="topbarTitle" class="topbar-title">Hoje</div>
       <div class="topbar-right">
@@ -60,9 +58,7 @@
       </div>
     </header>
 
-    <!-- SEÇÕES -->
     <div class="content">
-
       <section class="section active" id="section-dashboard"></section>
       <section class="section" id="section-week"></section>
       <section class="section" id="section-classes"></section>
@@ -71,7 +67,6 @@
       <section class="section" id="section-tasks"></section>
       <section class="section" id="section-tdah"></section>
       <section class="section" id="section-settings"></section>
-
     </div>
   </main>
 
@@ -84,7 +79,7 @@
       </div>
       <div class="modal-body">
         <label>Nome da tarefa</label>
-        <input type="text" id="inputTaskTitle" placeholder="Ex: Estudar Anestesiologia" />
+        <input type="text" id="inputTaskTitle" />
 
         <label>Data</label>
         <input type="date" id="inputTaskDate" />
@@ -108,12 +103,12 @@
         <label>Prioridade</label>
         <select id="inputTaskPriority">
           <option value="low">🟢 Baixa</option>
-          <option value="medium">🟡 Média</option>
+          <option value="medium" selected>🟡 Média</option>
           <option value="high">🔴 Alta</option>
         </select>
 
         <label>Observações</label>
-        <textarea id="inputTaskNotes" placeholder="Observações opcionais..."></textarea>
+        <textarea id="inputTaskNotes"></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="btnTaskCancel">Cancelar</button>
@@ -131,14 +126,14 @@
       </div>
       <div class="modal-body">
         <label>Disciplina</label>
-        <input type="text" id="examSubject" placeholder="Ex: Anestesiologia" />
+        <input type="text" id="examSubject" />
 
         <label>Tipo</label>
         <select id="examType">
           <option value="prova">📝 Prova</option>
           <option value="trabalho">📋 Trabalho</option>
           <option value="seminario">🎤 Seminário</option>
-          <option value="pratica">🔬 Avaliação Prática</option>
+          <option value="pratica">🔬 Avaliação prática</option>
         </select>
 
         <label>Data</label>
@@ -148,13 +143,13 @@
         <input type="time" id="examTime" />
 
         <label>Peso / Nota máxima</label>
-        <input type="number" id="examWeight" placeholder="Ex: 10" />
+        <input type="number" id="examWeight" />
 
         <label>Conteúdos (um por linha)</label>
         <div id="examTopicsContainer"></div>
 
         <label>Observações</label>
-        <textarea id="examNotes" placeholder="Observações opcionais..."></textarea>
+        <textarea id="examNotes"></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="btnExamCancel">Cancelar</button>
@@ -166,7 +161,7 @@
   <!-- TOAST -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <!-- SCRIPTS (ordem importa) -->
+  <!-- SCRIPTS -->
   <script src="data.js"></script>
   <script src="classes.js"></script>
   <script src="exams.js"></script>
@@ -174,6 +169,5 @@
   <script src="tdah.js"></script>
   <script src="sheets.js"></script>
   <script src="app.js"></script>
-
 </body>
 </html>
