@@ -2,172 +2,109 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <title>Minha Rotina Vet</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Agenda Naira · MedVet</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <span class="logo-icon">🐾</span>
-      <span class="logo-text">Agenda Naira</span>
+  <header class="topbar">
+    <div class="logo">Minha Rotina Vet</div>
+    <div class="topbar-right">
+      <select id="daySelect"></select>
+      <button id="todayBtn">Hoje</button>
     </div>
+  </header>
 
-    <nav class="sidebar-nav">
-      <a href="#" class="nav-item active" data-section="dashboard">
-        <span class="nav-icon">📅</span> Hoje
-      </a>
-      <a href="#" class="nav-item" data-section="week">
-        <span class="nav-icon">🗓</span> Semana
-      </a>
-      <a href="#" class="nav-item" data-section="classes">
-        <span class="nav-icon">🏫</span> Aulas
-      </a>
-      <a href="#" class="nav-item" data-section="exams">
-        <span class="nav-icon">📝</span> Provas & Trabalhos
-      </a>
-      <a href="#" class="nav-item" data-section="study">
-        <span class="nav-icon">📚</span> Plano de Estudos
-      </a>
-      <a href="#" class="nav-item" data-section="tasks">
-        <span class="nav-icon">✅</span> Tarefas
-      </a>
-      <a href="#" class="nav-item" data-section="tdah">
-        <span class="nav-icon">⏱</span> Métodos TDAH
-      </a>
-      <a href="#" class="nav-item" data-section="settings">
-        <span class="nav-icon">⚙</span> Configurações
-      </a>
-    </nav>
+  <main class="app-container">
+    <!-- Coluna esquerda: rotina fixa + casa -->
+    <section class="panel">
+      <h2>Rotina diária</h2>
 
-    <div class="sidebar-bottom">
-      <button id="btnSync" class="btn-sync">
-        <span>☁</span> Sincronizar Sheets
-      </button>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <main class="main">
-    <header class="topbar">
-      <div id="topbarTitle" class="topbar-title">Hoje</div>
-      <div class="topbar-right">
-        <button id="btnAddTask" class="btn-add-task">+ Nova Tarefa</button>
+      <div class="section-block">
+        <h3>Rotina da casa</h3>
+        <form id="houseTaskForm" class="inline-form">
+          <input type="time" id="houseTaskTime" required />
+          <input type="text" id="houseTaskTitle" placeholder="Ex.: Arrumar a cama" required />
+          <select id="houseTaskDays" multiple>
+            <option value="1">Segunda</option>
+            <option value="2">Terça</option>
+            <option value="3">Quarta</option>
+            <option value="4">Quinta</option>
+            <option value="5">Sexta</option>
+            <option value="6">Sábado</option>
+            <option value="0">Domingo</option>
+          </select>
+          <button type="submit">Adicionar</button>
+        </form>
+        <p class="hint">Dica: segure Ctrl (ou Command no Mac) para marcar vários dias.</p>
+        <ul id="houseTaskList" class="task-list"></ul>
       </div>
-    </header>
 
-    <div class="content">
-      <section class="section active" id="section-dashboard"></section>
-      <section class="section" id="section-week"></section>
-      <section class="section" id="section-classes"></section>
-      <section class="section" id="section-exams"></section>
-      <section class="section" id="section-study"></section>
-      <section class="section" id="section-tasks"></section>
-      <section class="section" id="section-tdah"></section>
-      <section class="section" id="section-settings"></section>
-    </div>
+      <div class="section-block">
+        <h3>Rotina fixa (Aulas & Tênis de mesa)</h3>
+        <p class="hint">Esses horários vêm da sua grade e são protegidos.</p>
+        <ul id="fixedScheduleList" class="task-list fixed"></ul>
+      </div>
+    </section>
+
+    <!-- Coluna central: agenda do dia -->
+    <section class="panel">
+      <h2>Agenda do dia</h2>
+      <div id="conflictAlert" class="alert hidden"></div>
+      <form id="dailyTaskForm" class="inline-form">
+        <input type="time" id="dailyTaskStart" required />
+        <input type="time" id="dailyTaskEnd" required />
+        <input type="text" id="dailyTaskTitle" placeholder="Nome da atividade" required />
+        <select id="dailyTaskType">
+          <option value="casa">Casa</option>
+          <option value="estudo">Estudo</option>
+          <option value="lazer">Lazer</option>
+          <option value="outro">Outro</option>
+        </select>
+        <button type="submit">Adicionar</button>
+      </form>
+
+      <div id="daySchedule" class="schedule-grid"></div>
+    </section>
+
+    <!-- Coluna direita: provas, conteúdos e métodos de estudo -->
+    <section class="panel">
+      <h2>Provas & Estudos</h2>
+
+      <div class="section-block">
+        <h3>Cadastrar prova / trabalho</h3>
+        <form id="examForm" class="stack-form">
+          <input type="text" id="examSubject" placeholder="Disciplina (ex.: Anestesiologia)" required />
+          <input type="date" id="examDate" required />
+          <input type="time" id="examTime" required />
+          <textarea id="examTopics" rows="2"
+            placeholder="Conteúdos (separe por vírgulas)"></textarea>
+          <select id="studyMethod">
+            <option value="pomodoro">Pomodoro guiado (25/5)</option>
+            <option value="spaced">Revisão espaçada</option>
+            <option value="misturado">Questões misturadas</option>
+          </select>
+          <button type="submit">Salvar prova</button>
+        </form>
+        <ul id="examList" class="task-list"></ul>
+      </div>
+
+      <div class="section-block">
+        <h3>Plano de estudo sugerido</h3>
+        <p class="hint">
+          O plano abaixo é gerado a partir das provas cadastradas. Você pode
+          arrastar horários na agenda do dia para ajustar.
+        </p>
+        <div id="studyPlan" class="study-plan"></div>
+      </div>
+    </section>
   </main>
 
-  <!-- MODAL: TAREFA -->
-  <div class="modal-overlay" id="modalTaskOverlay">
-    <div class="modal">
-      <div class="modal-header">
-        <span id="modalTaskTitle">Nova Tarefa</span>
-        <button class="modal-close" id="modalTaskClose">✕</button>
-      </div>
-      <div class="modal-body">
-        <label>Nome da tarefa</label>
-        <input type="text" id="inputTaskTitle" />
+  <footer class="footer">
+    <span>Desenvolvido para organizar sua rotina de Medicina Veterinária</span>
+    <span>Dados salvos localmente (navegador) + preparado para Google Sheets/GitHub</span>
+  </footer>
 
-        <label>Data</label>
-        <input type="date" id="inputTaskDate" />
-
-        <label>Horário início</label>
-        <input type="time" id="inputTaskStart" />
-
-        <label>Horário fim</label>
-        <input type="time" id="inputTaskEnd" />
-
-        <label>Categoria</label>
-        <select id="inputTaskCategory">
-          <option value="study">📚 Estudo</option>
-          <option value="home">🏠 Casa</option>
-          <option value="sport">🏓 Esporte</option>
-          <option value="leisure">🎮 Lazer</option>
-          <option value="class">🏫 Aula</option>
-          <option value="exam">📝 Prova</option>
-        </select>
-
-        <label>Prioridade</label>
-        <select id="inputTaskPriority">
-          <option value="low">🟢 Baixa</option>
-          <option value="medium" selected>🟡 Média</option>
-          <option value="high">🔴 Alta</option>
-        </select>
-
-        <label>Observações</label>
-        <textarea id="inputTaskNotes"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" id="btnTaskCancel">Cancelar</button>
-        <button class="btn-save"   id="btnTaskSave">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: PROVA -->
-  <div class="modal-overlay" id="modalExamOverlay">
-    <div class="modal">
-      <div class="modal-header">
-        <span id="modalExamTitle">Nova Avaliação</span>
-        <button class="modal-close" id="modalExamClose">✕</button>
-      </div>
-      <div class="modal-body">
-        <label>Disciplina</label>
-        <input type="text" id="examSubject" />
-
-        <label>Tipo</label>
-        <select id="examType">
-          <option value="prova">📝 Prova</option>
-          <option value="trabalho">📋 Trabalho</option>
-          <option value="seminario">🎤 Seminário</option>
-          <option value="pratica">🔬 Avaliação prática</option>
-        </select>
-
-        <label>Data</label>
-        <input type="date" id="examDate" />
-
-        <label>Horário</label>
-        <input type="time" id="examTime" />
-
-        <label>Peso / Nota máxima</label>
-        <input type="number" id="examWeight" />
-
-        <label>Conteúdos (um por linha)</label>
-        <div id="examTopicsContainer"></div>
-
-        <label>Observações</label>
-        <textarea id="examNotes"></textarea>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" id="btnExamCancel">Cancelar</button>
-        <button class="btn-save"   id="btnExamSave">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div id="toastContainer" class="toast-container"></div>
-
-  <!-- SCRIPTS -->
-  <script src="data.js"></script>
-  <script src="classes.js"></script>
-  <script src="exams.js"></script>
-  <script src="tasks.js"></script>
-  <script src="tdah.js"></script>
-  <script src="sheets.js"></script>
-  <script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
