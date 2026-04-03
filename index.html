@@ -2,174 +2,136 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Agenda Naira | MedVet 7ª Fase</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda Naira · MedVet</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="avatar">N</div>
-      <div class="user-info">
-        <span class="user-name">Naira</span>
-        <span class="user-sub">MedVet · 7ª Fase</span>
-      </div>
-      <button class="sidebar-toggle" id="sidebarToggle" title="Fechar menu">&#9776;</button>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">🐾</span>
+      <span class="logo-text">Agenda Naira</span>
     </div>
 
     <nav class="sidebar-nav">
       <a href="#" class="nav-item active" data-section="dashboard">
-        <span class="nav-icon">&#128197;</span> Hoje
+        <span class="nav-icon">📅</span> Hoje
       </a>
-     <a href="#" class="nav-item" data-section="week">
-      <span class="nav-icon">&#128198;</span> Semana
+      <a href="#" class="nav-item" data-section="week">
+        <span class="nav-icon">🗓</span> Semana
       </a>
       <a href="#" class="nav-item" data-section="classes">
-        <span class="nav-icon">&#127979;</span> Aulas
+        <span class="nav-icon">🏫</span> Aulas
       </a>
       <a href="#" class="nav-item" data-section="exams">
-        <span class="nav-icon">&#128221;</span> Provas & Trabalhos
+        <span class="nav-icon">📝</span> Provas & Trabalhos
       </a>
       <a href="#" class="nav-item" data-section="study">
-        <span class="nav-icon">&#129504;</span> Plano de Estudos
+        <span class="nav-icon">📚</span> Plano de Estudos
       </a>
       <a href="#" class="nav-item" data-section="tasks">
-        <span class="nav-icon">&#9989;</span> Tarefas
+        <span class="nav-icon">✅</span> Tarefas
       </a>
       <a href="#" class="nav-item" data-section="tdah">
-        <span class="nav-icon">&#9889;</span> Métodos TDAH
+        <span class="nav-icon">⏱</span> Métodos TDAH
       </a>
       <a href="#" class="nav-item" data-section="settings">
-        <span class="nav-icon">&#9881;</span> Configurações
+        <span class="nav-icon">⚙</span> Configurações
       </a>
     </nav>
 
-    <div class="sidebar-footer">
-      <button class="btn-sync" id="btnSync">
-        <span>&#9729;</span> Sincronizar Sheets
+    <div class="sidebar-bottom">
+      <button id="btnSync" class="btn-sync">
+        <span>☁</span> Sincronizar Sheets
       </button>
     </div>
   </aside>
 
-  <!-- ===== MAIN CONTENT ===== -->
-  <main class="main-content" id="mainContent">
+  <!-- MAIN -->
+  <main class="main">
 
     <!-- TOPBAR -->
     <header class="topbar">
-      <button class="btn-menu-mobile" id="btnMenuMobile">&#9776;</button>
-      <div class="topbar-title" id="topbarTitle">Hoje</div>
-      <div class="topbar-actions">
-        <button class="btn-add-task" id="btnAddTask">+ Nova Tarefa</button>
-        <div class="current-date" id="currentDate"></div>
+      <div id="topbarTitle" class="topbar-title">Hoje</div>
+      <div class="topbar-right">
+        <button id="btnAddTask" class="btn-add-task">+ Nova Tarefa</button>
       </div>
     </header>
 
-    <!-- SECTIONS -->
-    <div class="section active" id="section-dashboard">
-      <!-- Preenchido pelo JS -->
-    </div>
+    <!-- SEÇÕES -->
+    <div class="content">
 
-    <div class="section" id="section-week">
-      <!-- Preenchido pelo JS -->
-    </div>
+      <section class="section active" id="section-dashboard"></section>
+      <section class="section" id="section-week"></section>
+      <section class="section" id="section-classes"></section>
+      <section class="section" id="section-exams"></section>
+      <section class="section" id="section-study"></section>
+      <section class="section" id="section-tasks"></section>
+      <section class="section" id="section-tdah"></section>
+      <section class="section" id="section-settings"></section>
 
-    <div class="section" id="section-classes">
-      <!-- Preenchido pelo JS -->
     </div>
-
-    <div class="section" id="section-exams">
-      <!-- Preenchido pelo JS -->
-    </div>
-
-    <div class="section" id="section-study">
-      <!-- Preenchido pelo JS -->
-    </div>
-
-    <div class="section" id="section-tasks">
-      <!-- Preenchido pelo JS -->
-    </div>
-
-    <div class="section" id="section-tdah">
-      <!-- Preenchido pelo JS -->
-    </div>
-
-    <div class="section" id="section-settings">
-      <!-- Preenchido pelo JS -->
-    </div>
-
   </main>
 
-  <!-- ===== MODALS ===== -->
-
-  <!-- Modal: Nova Tarefa -->
+  <!-- MODAL: TAREFA -->
   <div class="modal-overlay" id="modalTaskOverlay">
-    <div class="modal" id="modalTask">
+    <div class="modal">
       <div class="modal-header">
-        <h2 id="modalTaskTitle">Nova Tarefa</h2>
-        <button class="modal-close" id="modalTaskClose">&times;</button>
+        <span id="modalTaskTitle">Nova Tarefa</span>
+        <button class="modal-close" id="modalTaskClose">✕</button>
       </div>
       <div class="modal-body">
-        <label>Nome da Tarefa *</label>
-        <input type="text" id="taskName" placeholder="Ex: Revisar Anestesiologia"/>
+        <label>Nome da tarefa</label>
+        <input type="text" id="inputTaskTitle" placeholder="Ex: Estudar Anestesiologia" />
 
-        <label>Data *</label>
-        <input type="date" id="taskDate"/>
+        <label>Data</label>
+        <input type="date" id="inputTaskDate" />
 
-        <label>Horário de início *</label>
-        <input type="time" id="taskTimeStart"/>
+        <label>Horário início</label>
+        <input type="time" id="inputTaskStart" />
 
-        <label>Horário de término</label>
-        <input type="time" id="taskTimeEnd"/>
+        <label>Horário fim</label>
+        <input type="time" id="inputTaskEnd" />
 
         <label>Categoria</label>
-        <select id="taskCategory">
-          <option value="home">🏠 Tarefas Domésticas</option>
+        <select id="inputTaskCategory">
           <option value="study">📚 Estudo</option>
-          <option value="leisure">🎮 Lazer</option>
+          <option value="home">🏠 Casa</option>
           <option value="sport">🏓 Esporte</option>
-          <option value="other">📌 Outro</option>
+          <option value="leisure">🎮 Lazer</option>
+          <option value="class">🏫 Aula</option>
+          <option value="exam">📝 Prova</option>
         </select>
 
         <label>Prioridade</label>
-        <select id="taskPriority">
+        <select id="inputTaskPriority">
           <option value="low">🟢 Baixa</option>
           <option value="medium">🟡 Média</option>
           <option value="high">🔴 Alta</option>
         </select>
 
         <label>Observações</label>
-        <textarea id="taskNotes" rows="3" placeholder="Detalhes adicionais..."></textarea>
+        <textarea id="inputTaskNotes" placeholder="Observações opcionais..."></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="btnTaskCancel">Cancelar</button>
-        <button class="btn-save" id="btnTaskSave">Salvar Tarefa</button>
+        <button class="btn-save"   id="btnTaskSave">Salvar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Nova Prova/Trabalho -->
+  <!-- MODAL: PROVA -->
   <div class="modal-overlay" id="modalExamOverlay">
-    <div class="modal" id="modalExam">
+    <div class="modal">
       <div class="modal-header">
-        <h2 id="modalExamTitle">Cadastrar Prova / Trabalho</h2>
-        <button class="modal-close" id="modalExamClose">&times;</button>
+        <span id="modalExamTitle">Nova Avaliação</span>
+        <button class="modal-close" id="modalExamClose">✕</button>
       </div>
       <div class="modal-body">
-        <label>Disciplina *</label>
-        <select id="examSubject">
-          <option value="">Selecione...</option>
-          <option value="anestesiologia">Anestesiologia</option>
-          <option value="tecnica_cirurgica">Técnica Cirúrgica</option>
-          <option value="clinica_pequenos">Clínica de Pequenos Animais</option>
-          <option value="anatomia_patologica">Anatomia Patológica Vet II</option>
-          <option value="diagnostico_imagem">Diagnóstico por Imagem</option>
-          <option value="outro">Outro</option>
-        </select>
+        <label>Disciplina</label>
+        <input type="text" id="examSubject" placeholder="Ex: Anestesiologia" />
 
         <label>Tipo</label>
         <select id="examType">
@@ -179,62 +141,39 @@
           <option value="pratica">🔬 Avaliação Prática</option>
         </select>
 
-        <label>Data da Avaliação *</label>
-        <input type="date" id="examDate"/>
+        <label>Data</label>
+        <input type="date" id="examDate" />
 
         <label>Horário</label>
-        <input type="time" id="examTime"/>
+        <input type="time" id="examTime" />
 
-        <label>Conteúdos que cairão na prova</label>
-        <div id="examTopicsContainer">
-          <div class="topic-row">
-            <input type="text" class="exam-topic-input" placeholder="Ex: Fármacos anestésicos inalatórios"/>
-            <button class="btn-add-topic">+</button>
-          </div>
-        </div>
+        <label>Peso / Nota máxima</label>
+        <input type="number" id="examWeight" placeholder="Ex: 10" />
 
-        <label>Peso / Valor da nota</label>
-        <input type="number" id="examWeight" min="0" max="10" step="0.5" placeholder="Ex: 10"/>
+        <label>Conteúdos (um por linha)</label>
+        <div id="examTopicsContainer"></div>
 
         <label>Observações</label>
-        <textarea id="examNotes" rows="3" placeholder="Informações extras, professor, sala..."></textarea>
+        <textarea id="examNotes" placeholder="Observações opcionais..."></textarea>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="btnExamCancel">Cancelar</button>
-        <button class="btn-save" id="btnExamSave">Salvar Avaliação</button>
+        <button class="btn-save"   id="btnExamSave">Salvar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Conflito de Horário -->
-  <div class="modal-overlay" id="modalConflictOverlay">
-    <div class="modal modal-sm" id="modalConflict">
-      <div class="modal-header">
-        <h2>⚠️ Conflito de Horário</h2>
-        <button class="modal-close" id="modalConflictClose">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p id="conflictMessage"></p>
-        <div class="conflict-options">
-          <button class="btn-conflict" id="btnConflictReplace">Substituir atividade existente</button>
-          <button class="btn-conflict" id="btnConflictKeepBoth">Manter ambas (sobrepor)</button>
-          <button class="btn-conflict" id="btnConflictReschedule">Reagendar nova tarefa</button>
-          <button class="btn-conflict btn-cancel" id="btnConflictCancel">Cancelar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- TOAST -->
+  <div id="toastContainer" class="toast-container"></div>
 
-  <!-- Toast de notificação -->
-  <div class="toast" id="toast"></div>
-
-  <!-- Scripts -->
-   <script src="data.js"></script>
+  <!-- SCRIPTS (ordem importa) -->
+  <script src="data.js"></script>
   <script src="classes.js"></script>
   <script src="exams.js"></script>
   <script src="tasks.js"></script>
-  <script src="tdah.js"></script>    <!-- ← adiciona esta linha -->
+  <script src="tdah.js"></script>
   <script src="sheets.js"></script>
   <script src="app.js"></script>
+
 </body>
 </html>
