@@ -43,15 +43,28 @@ const inputTaskNotes = document.getElementById("taskNotes");
 // toast
 const toastEl = document.getElementById("toast");
 
-// sync button (Google Sheets virá na Parte 6)
+// ── BOTÃO DE SINCRONIZAÇÃO ────────────────────────────────────
 btnSync.addEventListener("click", async () => {
+  if (!SHEETS_API_URL) {
+    showToast("Configure a URL do Apps Script em sheets.js antes de sincronizar.", "warning");
+    renderSettingsView();
+    setActiveSection("settings");
+    return;
+  }
+
+  btnSync.disabled = true;
+  btnSync.innerHTML = "<span>⏳</span> Sincronizando...";
+
   try {
-    showToast("Sincronizando com Google Sheets...", "info");
     await syncWithSheets();
-    showToast("Sincronização concluída com sucesso.", "success");
+    showToast("Sincronizado com Google Sheets!", "success");
+    refreshCurrentView();
   } catch (e) {
     console.error(e);
-    showToast("Erro ao sincronizar. Verifique a URL do Apps Script.", "error");
+    showToast("Erro: " + e.message, "error");
+  } finally {
+    btnSync.disabled = false;
+    btnSync.innerHTML = "<span>☁</span> Sincronizar Sheets";
   }
 });
 // estado de modal
