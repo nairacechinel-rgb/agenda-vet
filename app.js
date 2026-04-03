@@ -572,7 +572,227 @@ function renderTasksView() {
   sectionTasks.innerHTML = "<p style='color:#94a3b8'>Lista completa de tarefas será implementada na próxima parte.</p>";
 }
 function renderSettingsView() {
-  sectionSettings.innerHTML = "<p style='color:#94a3b8'>Configurações (incluindo Google Sheets) serão implementadas em breve.</p>";
+  sectionSettings.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "section-header";
+  header.innerHTML = `
+    <div>
+      <h1>Configurações</h1>
+      <p>Integração com Google Sheets e preferências gerais.</p>
+    </div>
+  `;
+  sectionSettings.appendChild(header);
+
+  // ── CARD: Google Sheets ───────────────────────────────────
+  const sheetsCard = document.createElement("div");
+  sheetsCard.className = "card";
+
+  const sheetsTitle = document.createElement("div");
+  sheetsTitle.className = "card-title";
+  sheetsTitle.textContent = "☁ Integração com Google Sheets";
+  sheetsCard.appendChild(sheetsTitle);
+
+  const desc = document.createElement("p");
+  desc.style.cssText = "font-size:.84rem;color:#9ca3af;line-height:1.6;margin-bottom:16px";
+  desc.innerHTML = `
+    Cole abaixo a URL gerada pelo seu Apps Script.<br>
+    Ao salvar, o botão <strong>"Sincronizar Sheets"</strong> na barra lateral passará a funcionar.
+  `;
+  sheetsCard.appendChild(desc);
+
+  const urlLabel = document.createElement("label");
+  urlLabel.style.cssText = "font-size:.82rem;color:#94a3b8;display:block;margin-bottom:6px";
+  urlLabel.textContent = "URL do Apps Script";
+
+  const urlInput = document.createElement("input");
+  urlInput.type = "text";
+  urlInput.placeholder = "https://script.google.com/macros/s/.../exec";
+  urlInput.style.marginBottom = "12px";
+
+  // carrega URL salva (se houver)
+  const savedUrl = localStorage.getItem("naira_sheets_url") || "";
+  urlInput.value = savedUrl;
+
+  // status
+  const statusEl = document.createElement("div");
+  statusEl.style.cssText = "font-size:.8rem;margin-bottom:14px;";
+  statusEl.textContent = savedUrl
+    ? "✅ URL configurada."
+    : "⚠️ Nenhuma URL configurada ainda.";
+  statusEl.style.color = savedUrl ? "#4ade80" : "#facc15";
+
+  const btnRow = document.createElement("div");
+  btnRow.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;";
+
+  const btnSaveUrl = document.createElement("button");
+  btnSaveUrl.className = "btn-save";
+  btnSaveUrl.textContent = "Salvar URL";
+  btnSaveUrl.addEventListener("click", () => {
+    const url = urlInput.value.trim();
+    if (!url.startsWith("https://script.google.com")) {
+      showToast("URL inválida. Deve começar com https://script.google.com", "error");
+      return;
+    }
+    localStorage.setItem("naira_sheets_url", url);
+    // atualiza a variável global em sheets.js
+    window.SHEETS_API_URL_DYNAMIC = url;
+    statusEl.textContent = "✅ URL salva com sucesso!";
+    statusEl.style.color = "#4ade80";
+    showToast("URL do Apps Script salva!", "success");
+  });
+
+  const btnTestSync = document.createElement("button");
+  btnTestSync.className = "btn-cancel";
+  btnTestSync.textContent = "Testar conexão";
+  btnTestSync.addEventListener("click", async () => {
+    btnTestSync.textContent = "Testando...";
+    btnTestSync.disabled = true;
+    try {
+      await syncWithSheets();
+      showToast("Conexão funcionando!", "success");
+      statusEl.textContent = "✅ Conexão testada com sucesso.";
+      statusEl.style.color = "#4ade80";
+    } catch (e) {
+      showToast("Falha: " + e.message, "error");
+      statusEl.textContent = "❌ Falha na conexão: " + e.message;
+      statusEl.style.color = "#f87171";
+    } finally {
+      btnTestSync.textContent = "Testar conexão";
+      btnTestSync.disabled = false;
+    }
+  });
+
+  const btnClearUrl = document.createElement("button");
+  btnClearUrl.className = "btn-cancel";
+  btnClearUrl.style.color = "#f87171";
+  btnClearUrl.textContent = "Remover URL";
+  btnClearUrl.addEventListener("click", () => {
+    localStorage.removeItem("naira_sheets_url");
+    urlInput.value = "";
+    window.SHEETS_API_URL_DYNAMIC = "";
+    statusEl.textContent = "⚠️ URL removida.";
+    statusEl.style.color = "#facc15";
+    showToast("URL removida.", "info");
+  });
+
+  btnRow.appendChild(btnSaveUrl);
+  btnRow.appendChild(btnTestSync);
+  btnRow.appendChild(btnClearUrl);
+
+  sheetsCard.appendChild(urlLabel);
+  sheetsCard.appendChild(urlInput);
+  sheetsCard.appendChild(statusEl);
+  sheetsCard.appendChild(btnRow);
+  sectionSettings.appendChild(sheetsCard);
+
+  // ── CARD: Dados locais ────────────────────────────────────
+  const dataCard = document.createElement("div");
+  dataCard.className = "card";
+
+  const dataTitle = document.createElement("div");
+  dataTitle.className = "card-title";
+  dataTitle.textContent = "🗄 Dados locais";
+  dataCard.appendChild(dataTitle);
+
+  const dataDesc = document.createElement("p");
+  dataDesc.style.cssText = "font-size:.84rem;color:#9ca3af;line-height:1.6;margin-bottom:14px";
+  dataDesc.innerHTML = `
+    Seus dados ficam salvos no navegador (localStorage).
+    Use as opções abaixo para exportar um backup ou limpar tudo.
+  `;
+  dataCard.appendChild(dataDesc);
+
+  const dataRow = document.createElement("div");
+  dataRow.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;";
+
+  const btnExport = document.createElement("button");
+  btnExport.className = "btn-save";
+  btnExport.textContent = "📥 Exportar backup (JSON)";
+  btnExport.addEventListener("click", () => {
+    const backup = {
+      tasks,
+      exams,
+      exportedAt: new Date().toISOString(),
+    };
+    const blob = new Blob(
+      [JSON.stringify(backup, null, 2)],
+      { type: "application/json" }
+    );
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `agenda-naira-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    showToast("Backup exportado!", "success");
+  });
+
+  const btnImport = document.createElement("button");
+  btnImport.className = "btn-cancel";
+  btnImport.textContent = "📤 Importar backup (JSON)";
+  btnImport.addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data.tasks) {
+            tasks = data.tasks;
+            saveToStorage(STORAGE_KEYS.TASKS, tasks);
+          }
+          if (data.exams) {
+            exams = data.exams;
+            saveToStorage(STORAGE_KEYS.EXAMS, exams);
+          }
+          showToast("Backup importado com sucesso!", "success");
+          refreshCurrentView();
+        } catch {
+          showToast("Arquivo inválido.", "error");
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  });
+
+  const btnClearAll = document.createElement("button");
+  btnClearAll.className = "btn-cancel";
+  btnClearAll.style.color = "#f87171";
+  btnClearAll.textContent = "🗑 Limpar todos os dados";
+  btnClearAll.addEventListener("click", () => {
+    if (confirm("Tem certeza? Isso apaga TODAS as tarefas e avaliações salvas localmente.")) {
+      localStorage.clear();
+      tasks = [];
+      exams = [];
+      showToast("Dados limpos. A agenda vai recriar a rotina automaticamente.", "info");
+      refreshCurrentView();
+    }
+  });
+
+  dataRow.appendChild(btnExport);
+  dataRow.appendChild(btnImport);
+  dataRow.appendChild(btnClearAll);
+  dataCard.appendChild(dataRow);
+  sectionSettings.appendChild(dataCard);
+
+  // ── CARD: Sobre ───────────────────────────────────────────
+  const aboutCard = document.createElement("div");
+  aboutCard.className = "card";
+  aboutCard.innerHTML = `
+    <div class="card-title">ℹ Sobre esta agenda</div>
+    <p style="font-size:.84rem;color:#9ca3af;line-height:1.7">
+      Desenvolvida para <strong>Naira</strong> — acadêmica de Medicina Veterinária, 7ª fase.<br>
+      Integra rotina doméstica, aulas, tênis de mesa, blocos de estudo adaptativos e métodos TDAH.<br><br>
+      <strong>Versão:</strong> 1.0<br>
+      <strong>Armazenamento:</strong> Local (navegador) + Google Sheets (opcional)<br>
+      <strong>Hospedagem:</strong> GitHub Pages
+    </p>
+  `;
+  sectionSettings.appendChild(aboutCard);
 }
 
 // ===============================
