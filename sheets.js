@@ -1,35 +1,40 @@
 // ===============================
-// sheets.js — Esqueleto da integração com Google Sheets
+// sheets.js — Integração com Google Sheets
 // ===============================
 
-// Quando você criar o Apps Script, coloque a URL aqui:
-const SHEETS_API_URL = ""; 
-// ex: "https://script.google.com/macros/s/AKfycbx.../exec"
+// Cole aqui a URL que o Apps Script vai te gerar
+// Exemplo: "https://script.google.com/macros/s/AKfycbx.../exec"
+const SHEETS_API_URL = "";
 
+// ── SINCRONIZAR (enviar + receber) ────────────────────────────
 async function syncWithSheets() {
   if (!SHEETS_API_URL) {
-    throw new Error("URL do Apps Script ainda não configurada.");
+    throw new Error("URL do Apps Script não configurada. Vá em sheets.js e preencha SHEETS_API_URL.");
   }
 
-  // dados que queremos enviar para a planilha
   const payload = {
-    tasks,
-    exams,
+    action: "sync",
+    tasks:  tasks,
+    exams:  exams,
   };
 
   const response = await fetch(SHEETS_API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    method:  "POST",
+    headers: { "Content-Type": "text/plain" },
+    body:    JSON.stringify(payload),
   });
 
   if (!response.ok) {
-    throw new Error("Erro HTTP na sincronização: " + response.status);
+    throw new Error("Erro HTTP " + response.status);
   }
 
   const data = await response.json();
 
-  // Se quiser, podemos atualizar tasks/exams com o que vier da planilha:
+  if (data.status !== "ok") {
+    throw new Error(data.message || "Erro desconhecido na sincronização.");
+  }
+
+  // Atualiza os dados locais com o que veio da planilha
   if (Array.isArray(data.tasks)) {
     tasks = data.tasks;
     saveToStorage(STORAGE_KEYS.TASKS, tasks);
@@ -38,4 +43,58 @@ async function syncWithSheets() {
     exams = data.exams;
     saveToStorage(STORAGE_KEYS.EXAMS, exams);
   }
+
+  return data;
+}
+
+// ── APENAS ENVIAR (backup) ────────────────────────────────────
+async function pushToSheets() {
+  if (!SHEETS_API_URL) {
+    throw new Error("URL do Apps Script não configurada.");
+  }
+
+  const payload = {
+    action: "push",
+    tasks:  tasks,
+    exams:  exams,
+  };
+
+  const response = await fetch(SHEETS_API_URL, {
+    method:  "POST",
+    headers: { "Content-Type": "text/plain" },
+    body:    JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro HTTP " + response.status);
+  }
+
+  return await response.json();
+}
+
+// ── APENAS RECEBER (restaurar da planilha) ────────────────────
+async function pullFromSheets() {
+  if (!SHEETS_API_URL) {
+    throw new Error("URL do Apps Script não configurada.");
+  }
+
+  const url = SHEETS_API_URL + "?action=pull";
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error("Erro HTTP " + response.status);
+  }
+
+  const data = await response.json();
+
+  if (Array.isArray(data.tasks)) {
+    tasks = data.tasks;
+    saveToStorage(STORAGE_KEYS.TASKS, tasks);
+  }
+  if (Array.isArray(data.exams)) {
+    exams = data.exams;
+    saveToStorage(STORAGE_KEYS.EXAMS, exams);
+  }
+
+  return data;
 }
