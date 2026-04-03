@@ -116,42 +116,41 @@ const TENIS_DAYS   = [1,3,5];
 const TENIS_CONFIG = { label:"Tênis de Mesa", start:"08:00", end:"11:00" };
 
 // ── HORÁRIO DE AULAS (HORRIO.pdf) ─────────────
-// dayIndex: 1=seg, 2=ter, 3=qua, 4=qui, 5=sex
-
+// dayIndex: 1 = segunda, 2 = terça, 3 = quarta, 4 = quinta, 5 = sexta
 const CLASSES_SCHEDULE = [
 
-  // SEGUNDA
-  { dayIndex:1, start:"15:20", end:"16:00", subject:"Anatomia Patológica II",      type:"teórica" },
-  { dayIndex:1, start:"16:00", end:"16:40", subject:"Anatomia Patológica II",      type:"teórica" },
-  { dayIndex:1, start:"18:40", end:"19:20", subject:"Clínica de Pequenos Animais", type:"teórica" },
-  { dayIndex:1, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais", type:"teórica" },
+  // SEGUNDA-FEIRA
+  { dayIndex: 1, start: "15:20", end: "16:00", subject: "Anatomia Patológica II",      type: "teórica" },
+  { dayIndex: 1, start: "16:00", end: "16:40", subject: "Anatomia Patológica II",      type: "teórica" },
+  { dayIndex: 1, start: "18:40", end: "19:20", subject: "Clínica de Pequenos Animais", type: "teórica" },
+  { dayIndex: 1, start: "19:20", end: "20:30", subject: "Clínica de Pequenos Animais", type: "teórica" },
 
-  // TERÇA
-  { dayIndex:2, start:"13:30", end:"14:10", subject:"Clínica de Pequenos - Prática", type:"prática" },
-  { dayIndex:2, start:"18:40", end:"19:20", subject:"Anatomia Patológica Vet II",    type:"teórica" },
-  { dayIndex:2, start:"19:20", end:"20:30", subject:"Anatomia Patológica Vet II",    type:"teórica" },
-  { dayIndex:2, start:"20:30", end:"21:10", subject:"Diagnóstico por Imagem",        type:"teórica" },
-  { dayIndex:2, start:"21:10", end:"21:50", subject:"Diagnóstico por Imagem",        type:"teórica" },
+  // TERÇA-FEIRA
+  { dayIndex: 2, start: "13:30", end: "14:10", subject: "Clínica de Pequenos - Prática", type: "prática" },
+  { dayIndex: 2, start: "18:40", end: "19:20", subject: "Anatomia Patológica Vet II",    type: "teórica" },
+  { dayIndex: 2, start: "19:20", end: "20:30", subject: "Anatomia Patológica Vet II",    type: "teórica" },
+  { dayIndex: 2, start: "20:30", end: "21:10", subject: "Diagnóstico por Imagem",        type: "teórica" },
+  { dayIndex: 2, start: "21:10", end: "21:50", subject: "Diagnóstico por Imagem",        type: "teórica" },
 
-  // QUARTA
-  { dayIndex:3, start:"14:10", end:"15:20", subject:"Clínica de Pequenos - Prática", type:"prática" },
-  { dayIndex:3, start:"15:20", end:"16:00", subject:"Clínica de Pequenos - Prática", type:"prática" },
-  { dayIndex:3, start:"16:00", end:"16:40", subject:"Clínica de Pequenos - Prática", type:"prática" },
-  { dayIndex:3, start:"20:30", end:"21:10", subject:"Anestesiologia",                type:"teórica" },
-  { dayIndex:3, start:"21:10", end:"21:50", subject:"Anestesiologia",                type:"teórica" },
+  // QUARTA-FEIRA
+  { dayIndex: 3, start: "14:10", end: "15:20", subject: "Clínica de Pequenos - Prática", type: "prática" },
+  { dayIndex: 3, start: "15:20", end: "16:00", subject: "Clínica de Pequenos - Prática", type: "prática" },
+  { dayIndex: 3, start: "16:00", end: "16:40", subject: "Clínica de Pequenos - Prática", type: "prática" },
+  { dayIndex: 3, start: "20:30", end: "21:10", subject: "Anestesiologia",                type: "teórica" },
+  { dayIndex: 3, start: "21:10", end: "21:50", subject: "Anestesiologia",                type: "teórica" },
 
-  // QUINTA
-  { dayIndex:4, start:"08:30", end:"09:10", subject:"Anestesiologia - Prática",      type:"prática" },
-  { dayIndex:4, start:"09:10", end:"10:20", subject:"Anestesiologia - Prática",      type:"prática" },
-  { dayIndex:4, start:"10:20", end:"11:00", subject:"Técnica Cirúrgica - Prática",   type:"prática" },
-  { dayIndex:4, start:"11:00", end:"11:40", subject:"Técnica Cirúrgica - Prática",   type:"prática" },
-  { dayIndex:4, start:"15:20", end:"16:00", subject:"Técnica Cirúrgica",             type:"teórica" },
-  { dayIndex:4, start:"16:00", end:"16:40", subject:"Técnica Cirúrgica",             type:"teórica" },
-  { dayIndex:4, start:"19:20", end:"20:30", subject:"Clínica de Pequenos Animais",   type:"teórica" },
-  { dayIndex:4, start:"20:30", end:"21:10", subject:"Clínica de Pequenos Animais",   type:"teórica" },
-  { dayIndex:4, start:"21:10", end:"21:50", subject:"Clínica de Pequenos Animais",   type:"teórica" },
+  // QUINTA-FEIRA
+  { dayIndex: 4, start: "08:30", end: "09:10", subject: "Anestesiologia - Prática",      type: "prática" },
+  { dayIndex: 4, start: "09:10", end: "10:20", subject: "Anestesiologia - Prática",      type: "prática" },
+  { dayIndex: 4, start: "10:20", end: "11:00", subject: "Técnica Cirúrgica - Prática",   type: "prática" },
+  { dayIndex: 4, start: "11:00", end: "11:40", subject: "Técnica Cirúrgica - Prática",   type: "prática" },
+  { dayIndex: 4, start: "15:20", end: "16:00", subject: "Técnica Cirúrgica",             type: "teórica" },
+  { dayIndex: 4, start: "16:00", end: "16:40", subject: "Técnica Cirúrgica",             type: "teórica" },
+  { dayIndex: 4, start: "19:20", end: "20:30", subject: "Clínica de Pequenos Animais",   type: "teórica" },
+  { dayIndex: 4, start: "20:30", end: "21:10", subject: "Clínica de Pequenos Animais",   type: "teórica" },
+  { dayIndex: 4, start: "21:10", end: "21:50", subject: "Clínica de Pequenos Animais",   type: "teórica" },
 
-  // SEXTA: vazio
+  // SEXTA-FEIRA — sem aulas
 ];
 
 // ── SLOTS DE ESTUDO ───────────────────────────
