@@ -126,14 +126,13 @@ const CLASSES_SCHEDULE = [
   { dayIndex: 1, start: "19:20", end: "20:30", subject: "Clínica de Pequenos Animais", type: "teórica" },
 
   // TERÇA-FEIRA
-  { dayIndex: 2, start: "13:30", end: "14:10", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 2, start: "18:40", end: "19:20", subject: "Anatomia Patológica Vet II",    type: "teórica" },
   { dayIndex: 2, start: "19:20", end: "20:30", subject: "Anatomia Patológica Vet II",    type: "teórica" },
   { dayIndex: 2, start: "20:30", end: "21:10", subject: "Diagnóstico por Imagem",        type: "teórica" },
   { dayIndex: 2, start: "21:10", end: "21:50", subject: "Diagnóstico por Imagem",        type: "teórica" },
 
   // QUARTA-FEIRA
-  { dayIndex: 3, start: "14:10", end: "15:20", subject: "Clínica de Pequenos - Prática", type: "prática" },
+  { dayIndex: 3, start: "13:30", end: "15:20", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 3, start: "15:20", end: "16:00", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 3, start: "16:00", end: "16:40", subject: "Clínica de Pequenos - Prática", type: "prática" },
   { dayIndex: 3, start: "20:30", end: "21:10", subject: "Anestesiologia",                type: "teórica" },
